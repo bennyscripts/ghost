@@ -1,0 +1,9 @@
+art
+colorama
+discord.py-self==1.7.3
+Faker
+pypresence
+requests
+pillow
+pystyle
+pyinstaller==5.11.0

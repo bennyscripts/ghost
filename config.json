@@ -1,0 +1,13 @@
+{
+    "token": "",
+    "prefix": ".",
+    "rich_presence": false,
+    "message_settings": {
+        "auto_delete_delay": 15,
+        "style": "image"
+    },
+    "theme": "ghost",
+    "apis": {
+        "serpapi": ""
+    }
+}
