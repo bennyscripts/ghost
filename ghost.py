@@ -3,29 +3,18 @@ import sys
 import requests
 import time
 import discord
-import faker
-import random
-import asyncio
-import colorama
-import base64
-import threading
-import json
-import string
 
 from discord.errors import LoginFailure
 from discord.ext import commands
 
 from pypresence import Presence
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 from utils import console
 from utils import config
 from utils import notifier
 from utils import scripts
 from utils import files
-from utils import codeblock
 from utils import cmdhelper
-from utils import imgembed
 
 # import utils as ghost_utils
 import commands as ghost_commands
@@ -41,7 +30,8 @@ ghost = commands.Bot(
     command_prefix=cfg.get("prefix"),
     self_bot=True,
     help_command=None,
-    status=discord.Status.try_value(status)
+    status=discord.Status.try_value(status),
+    chunk_guilds_at_startup=False
 )
 
 user = requests.get("https://discord.com/api/users/@me", headers={"Authorization": cfg.get("token")}).json()
@@ -58,17 +48,6 @@ try:
 except Exception as e:
     console.print_error(f"Failed to connect to Discord RPC")
 
-ghost.add_cog(ghost_commands.Account(ghost))
-ghost.add_cog(ghost_commands.Fun(ghost))
-ghost.add_cog(ghost_commands.General(ghost))
-ghost.add_cog(ghost_commands.Img(ghost))
-ghost.add_cog(ghost_commands.Info(ghost))
-ghost.add_cog(ghost_commands.Mod(ghost))
-ghost.add_cog(ghost_commands.NSFW(ghost))
-ghost.add_cog(ghost_commands.Text(ghost))
-ghost.add_cog(ghost_commands.Theming(ghost))
-ghost.add_cog(ghost_commands.Util(ghost))
-
 for script_file in os.listdir("scripts"):
     if script_file.endswith(".py"):
         scripts.add_script("scripts/" + script_file, globals(), locals())
@@ -83,6 +62,16 @@ async def on_connect():
     console.resize(columns=90, rows=25)
     console.print_banner()
     console.print_info(text)
+    await ghost.add_cog(ghost_commands.Account(ghost))
+    await ghost.add_cog(ghost_commands.Fun(ghost))
+    await ghost.add_cog(ghost_commands.General(ghost))
+    await ghost.add_cog(ghost_commands.Img(ghost))
+    await ghost.add_cog(ghost_commands.Info(ghost))
+    await ghost.add_cog(ghost_commands.Mod(ghost))
+    await ghost.add_cog(ghost_commands.NSFW(ghost))
+    await ghost.add_cog(ghost_commands.Text(ghost))
+    await ghost.add_cog(ghost_commands.Theming(ghost))
+    await ghost.add_cog(ghost_commands.Util(ghost))
     console.print_info(f"You can now use commands with {cfg.get('prefix')}")
     print()
 
@@ -120,7 +109,7 @@ async def on_command_error(ctx, error):
     console.print_error(str(error))
 
 try:
-    ghost.run(cfg.get("token"), bot=False)
+    ghost.run(cfg.get("token"))
 except LoginFailure:
     console.print_error("Invalid token, please set a new one below.")
     new_token = input("> ")
