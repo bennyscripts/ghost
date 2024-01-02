@@ -3,18 +3,28 @@ import sys
 import requests
 import time
 import discord
+import faker
+import random
+import asyncio
+import colorama
+import base64
+import threading
+import json
+import string
 
 from discord.errors import LoginFailure
 from discord.ext import commands
 
 from pypresence import Presence
-
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from utils import console
 from utils import config
 from utils import notifier
 from utils import scripts
 from utils import files
+from utils import codeblock
 from utils import cmdhelper
+from utils import imgembed
 
 # import utils as ghost_utils
 import commands as ghost_commands
