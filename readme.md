@@ -21,7 +21,7 @@ A rewrite of the popular Discord selfbot, Ghost.
 - Recently, Discord made a change in the API were some requests need a build number
 - The current `pypi` version of discord.py-self has a patched version to fetch the number. However, the development version doesn't
 - To install the development version simply uninstall your current version of `discord.py-self` by inputting
-- `pip install discord.py-self`
+- `pip uninstall discord.py-self`
 - Then execute:
 - `pip install git+https://github.com/dolfies/discord.py-self@master#egg=discord.py-self`
 - Make sure you have Git installed!
