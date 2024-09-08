@@ -1,4 +1,4 @@
-# Ghost v3
+# Ghost
 A rewrite of the popular Discord selfbot, Ghost.  
 **FYI:** There are no raid commands in this selfbot and we will not be adding any.  
 
