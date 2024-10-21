@@ -104,14 +104,16 @@ class Theming(commands.Cog):
             "footer": cfg.get("theme")["footer"],
         })
 
-    async def theme_set(self, ctx, key, value):
+    async def theme_set(self, ctx, subkey, value):
         cfg = config.Config()
         description = ""
         colour = ""
 
-        cfg.config["theme"][key] = value
+        key = "message_settings" if subkey == "style" else "theme"
+
+        cfg.config[key][subkey] = value
         cfg.save()
-        description = f"{key} set to {value}"
+        description = f"{subkey} set to {value}"
 
         cfg = config.Config() # Re iniate the config var because it needs to load the new local version of the config dict
         
@@ -124,31 +126,31 @@ class Theming(commands.Cog):
 
     @theme.command(name="title", description="Set the title of the embed.", usage="[title]")
     async def theme_title(self, ctx, *, title: str):
-        await self.theme_set(ctx=ctx, key="title", value=title)
+        await self.theme_set(ctx=ctx, subkey="title", value=title)
         
     @theme.command(name="colour", description="Set the colour of the embed.", usage="[colour]", aliases=["color"])
     async def theme_colour(self, ctx, colour: str):
-        await self.theme_set(ctx=ctx, key="colour", value=colour)
+        await self.theme_set(ctx=ctx, subkey="colour", value=colour)
 
     @theme.command(name="footer", description="Set the footer of the embed.", usage="[footer]")
     async def theme_footer(self, ctx, *, footer: str):
-        await self.theme_set(ctx=ctx, key="footer", value=footer)
+        await self.theme_set(ctx=ctx, subkey="footer", value=footer)
 
     @theme.command(name="image", description="Set the image of the embed.", usage="[image]")
     async def theme_image(self, ctx, image: str):
-        await self.theme_set(ctx=ctx, key="image", value=image)
+        await self.theme_set(ctx=ctx, subkey="image", value=image)
 
     @theme.command(name="style", description="Set the style of the embed.", usage="[style]")
     async def theme_style(self, ctx, style: str):
-        await self.theme_set(ctx=ctx, key="style", value=style)
+        await self.theme_set(ctx=ctx, subkey="style", value=style)
 
     @commands.command(name="imagemode", description="Set your theme style to image.", usage="")
     async def imagemode(self, ctx):
-        await self.theme_set(ctx=ctx, key="style", value="image")
+        await self.theme_set(ctx=ctx, subkey="style", value="image")
 
     @commands.command(name="textmode", description="Set your theme style to codeblock.", usage="", aliases=["codeblockmode"])
     async def textmode(self, ctx):
-        await self.theme_set(ctx=ctx, key="style", value="codeblock")
+        await self.theme_set(ctx=ctx, subkey="style", value="codeblock")
 
 def setup(bot):
     bot.add_cog(Theming(bot))
