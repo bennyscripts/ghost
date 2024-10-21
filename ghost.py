@@ -120,7 +120,7 @@ async def on_command_error(ctx, error):
     console.print_error(str(error))
 
 try:
-    ghost.run(cfg.get("token"), bot=False)
+    ghost.run(cfg.get("token"))
 except LoginFailure:
     console.print_error("Invalid token, please set a new one below.")
     new_token = input("> ")
