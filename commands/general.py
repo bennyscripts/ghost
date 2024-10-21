@@ -37,7 +37,7 @@ class General(commands.Cog):
             if cfg.get("message_settings")["style"] == "codeblock":
                 description += f"{cmd['name']} :: {cmd['description']}\n"
             else:
-                description += f"**{self.bot.command_prefix}{cmd['name']}** {cmd['description']}\n"
+                description += f"{self.bot.command_prefix}**{cmd['name']}** {cmd['description']}\n"
 
         if command is None:
             if cfg.get("message_settings")["style"] == "codeblock":
