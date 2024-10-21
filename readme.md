@@ -1,8 +1,9 @@
 # Ghost
-A rewrite of the popular Discord selfbot, Ghost.  
-**FYI:** There are no raid commands in this selfbot and we will not be adding any.  
+A rewrite of the popular Discord selfbot, Ghost.    
+Please feel free to create a pull request with commands you've added yourself.  
 
 ### How to use
-> Make sure you have Python installed.  
+> Make sure you have Python 3.10 installed.  
 > Download the latest release or the source code.  
-> Run `ghost.py`.  
+> Download all the required librarys (`pip install -r requirements.txt`)
+> Run `ghost.py`!
