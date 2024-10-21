@@ -1,5 +1,6 @@
 import discord
 import os
+import requests
 
 from discord.ext import commands
 from utils import config
@@ -96,6 +97,38 @@ Members :: {ctx.guild.member_count}""")
 
             await ctx.send(content=f"<{shortener.shorten(str(user.avatar_url))}>", file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
             os.remove(embed_file)
+
+    @commands.command(name="tickets", description="Get a list of all tickets available in the server.")
+    async def tickets(self, ctx):
+        tickets = []
+
+        for channel in ctx.guild.channels:
+            if str(channel.type) == "text":
+                if "ticket" in channel.name.lower():
+                    tickets.append(f"#{channel.name}")
+        
+        await ctx.send(
+            str(codeblock.Codeblock(
+                "tickets",
+                description="\n".join(tickets) if tickets else "There were no ticket channels found."
+            ))
+        )
+
+    @commands.command(name="hiddenchannels", description="List all hidden channels.", aliases=["privchannels", "privatechannels"])
+    async def hiddenchannels(self, ctx):
+        channels = []
+
+        for channel in ctx.guild.channels:
+            for permission in ctx.message.author.permissions_in(channel):
+                if permission[0] == "read_messages" and permission[1] == False:
+                    channels.append(f"#{channel.name}")
+
+        await ctx.send(
+            str(codeblock.Codeblock(
+                "hidden channels",
+                description="\n".join(channels) if channels else "There were no hidden channels found."
+            ))
+        )
 
 def setup(bot):
     bot.add_cog(Info(bot))
