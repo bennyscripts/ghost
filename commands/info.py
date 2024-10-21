@@ -67,7 +67,7 @@ Created at :: {created_at}""")
 ID      :: {ctx.guild.id}
 Owner   :: {ctx.guild.owner}
 Members :: {ctx.guild.member_count}""")
-            await ctx.send(msg + shortener.shorten(f"{ctx.guild.icon_url}"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(str(msg) + shortener.shorten(f"{ctx.guild.icon_url}"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
 
         else:
             embed = imgembed.Embed(title=f"{ctx.guild.name} information", description=f"**ID:** {ctx.guild.id}\n**Owner:** {ctx.guild.owner.name}\n**Members:** {ctx.guild.member_count}", colour=cfg.get("theme")["colour"])
