@@ -5,6 +5,7 @@ import random
 import faker
 import datetime
 import os
+import threading
 
 from PIL import Image, ImageDraw, ImageFont
 from discord.ext import commands
@@ -13,6 +14,7 @@ from utils import codeblock
 from utils import cmdhelper
 from utils import imgembed
 from utils import soundboard
+from utils import console
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -46,7 +48,7 @@ class Fun(commands.Cog):
 
     @commands.command(name="rickroll", description="Never gonna give you up.", usage="")
     async def rickroll(self, ctx):
-        lyrics = requests.get("https://gist.githubusercontent.com/bentettmar/c8f9a62542174cdfb45499fdf8719723/raw/2f6a8245c64c0ea3249814ad8e016ceac45473e0/rickroll.txt").text    
+        lyrics = requests.get("https://gist.githubusercontent.com/bennyscripts/c8f9a62542174cdfb45499fdf8719723/raw/2f6a8245c64c0ea3249814ad8e016ceac45473e0/rickroll.txt").text    
         for line in lyrics.splitlines():
             await ctx.send(line)
             await asyncio.sleep(1)
@@ -83,14 +85,14 @@ class Fun(commands.Cog):
 
         if cfg.get("message_settings")["style"] == "codeblock":
             msg = codeblock.Codeblock("iq", extra_title=f"{user.name}'s IQ is {iq}. {smart_text}")
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(msg)
 
         else:
             embed = imgembed.Embed(title=f"{user.name}'s iq", description=f"{user.name}'s IQ is {iq}. {smart_text}", colour=cfg.get("theme")["colour"])
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
     @commands.command(name="howgay", description="Get the gayness of a user.", usage="[user]", aliases=["gay", "gayrating"])
@@ -101,14 +103,14 @@ class Fun(commands.Cog):
 
         if cfg.get("message_settings")["style"] == "codeblock":
             msg = codeblock.Codeblock("how gay", extra_title=f"{user.name} is {gay_percentage}% gay.")
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(msg)
 
         else:
             embed = imgembed.Embed(title=f"how gay is {user.name}?!", description=f"{user.name} is {gay_percentage}% gay.", colour=cfg.get("theme")["colour"])
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
     @commands.command(name="howblack", description="Get the blackness of a user.", usage="[user]", aliases=["black", "blackrating"])
@@ -118,14 +120,14 @@ class Fun(commands.Cog):
 
         if cfg.get("message_settings")["style"] == "codeblock":
             msg = codeblock.Codeblock("how black", extra_title=f"{user.name} is {black_percentage}% black.")
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(msg)
 
         else:
             embed = imgembed.Embed(title=f"how black is {user.name}?!", description=f"{user.name} is {black_percentage}% black.", colour=cfg.get("theme")["colour"])
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
     @commands.command(name="pp", description="Get the size of a user's dick.", usage="[user]", aliases=["dick", "dicksize", "penis"])
@@ -135,15 +137,15 @@ class Fun(commands.Cog):
         inches = str(len(penis)) + "\""
 
         if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("pp", extra_title=f"{user.name} has a {inches} dick.", description=penis)
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            msg = codeblock.Codeblock("pp", extra_title=f"{user.name} has a {inches} pp.", description=penis)
+            await ctx.send(msg)
 
         else:
-            embed = imgembed.Embed(title=f"{user.name}'s dick size", description=f"{user.name} has a {inches} dick.\n{penis}", colour=cfg.get("theme")["colour"])
+            embed = imgembed.Embed(title=f"{user.name}'s pp size", description=f"{user.name} has a {inches} pp.\n{penis}", colour=cfg.get("theme")["colour"])
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
     @commands.command(name="blocksend", description="Send a message to a blocked user.", usage="[user] [message]")
@@ -156,14 +158,14 @@ class Fun(commands.Cog):
 
         if cfg.get("message_settings")["style"] == "codeblock":
             msg = codeblock.Codeblock("block send", extra_title=f"Sent a message to {user.name} ({user.id})", description=f"Message :: {message}")
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(msg)
 
         else:
             embed = imgembed.Embed(title=f"block send", description=f"Sent a message to {user.name} ({user.id}).\n**Message:** {message}", colour=cfg.get("theme")["colour"])
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
     def get_formatted_items(self, json_obj, tabs=0):
@@ -226,27 +228,27 @@ class Fun(commands.Cog):
 
             if cfg.get("message_settings")["style"] == "codeblock":
                 msg = codeblock.Codeblock("kanye", extra_title=data["quote"])
-                await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+                await ctx.send(msg)
 
             else:
                 embed = imgembed.Embed(title=f"Kanye Quote", description=data["quote"], colour=cfg.get("theme")["colour"])
                 embed.set_footer(text=cfg.get("theme")["footer"])
                 embed_file = embed.save()
 
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
                 os.remove(embed_file)
 
         else:
             if cfg.get("message_settings")["style"] == "codeblock":
                 msg = codeblock.Codeblock("error", extra_title="Failed to get data.")
-                await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+                await ctx.send(msg)
 
             else:
                 embed = imgembed.Embed(title=f"Error", description="Failed to get data.", colour=cfg.get("theme")["colour"])
                 embed.set_footer(text=cfg.get("theme")["footer"])
                 embed_file = embed.save()
 
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
                 os.remove(embed_file)
 
     @commands.command(name="socialcredit", description="Get a user's social credit score.", usage="[user]", aliases=["socialcreditscore", "socialcreditrating", "socialcredits", "socialrating", "socialscore"])
@@ -256,14 +258,14 @@ class Fun(commands.Cog):
 
         if cfg.get("message_settings")["style"] == "codeblock":
             msg = codeblock.Codeblock("social credit", extra_title=f"{user.name}'s social credit score is {score}.")
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(msg)
 
         else:
             embed = imgembed.Embed(title=f"Social Credit", description=f"{user.name}'s social credit score is {score}.", colour=cfg.get("theme")["colour"])
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
     @commands.command(name="dice", description="Roll a dice with a specific side count.", usage="[sides]", aliases=["roll"])
@@ -273,35 +275,55 @@ class Fun(commands.Cog):
 
         if cfg.get("message_settings")["style"] == "codeblock":
             msg = codeblock.Codeblock(f"{sides} side dice", extra_title=f"You rolled a {number}.")
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(msg)
 
         else:
             embed = imgembed.Embed(title=f"{sides} side dice", description=f"You rolled a {number}.", colour=cfg.get("theme")["colour"])
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
     @commands.command(name="rainbow", description="Create rainbow text.", usage="[text]", aliases=["rainbowtext"])
     async def rainbow(self, ctx, *, text: str):
-        colours = {"red": {"codeblock": "diff", "prefix": "-", "suffix": ""},
-            "orange": {"codeblock": "cs", "prefix": "#", "suffix": ""},
-            "yellow": {"codeblock": "fix", "prefix": "", "suffix": ""},
-            "green": {"codeblock": "cs", "prefix": "'", "suffix": "'",},
-            "blue": {"codeblock": "md", "prefix": "#", "suffix": ""}}
+        # colours = {"red": {"codeblock": "diff", "prefix": "-", "suffix": ""},
+        #     "orange": {"codeblock": "cs", "prefix": "#", "suffix": ""},
+        #     "yellow": {"codeblock": "fix", "prefix": "", "suffix": ""},
+        #     "green": {"codeblock": "cs", "prefix": "'", "suffix": "'",},
+        #     "blue": {"codeblock": "md", "prefix": "#", "suffix": ""}}
         
+        # emojis = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"]
+        emojis = ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣"]
         message = await ctx.send(text)
 
-        for _ in range(3):
-            for colour in colours:
-                colour = colours[colour]
-                await message.edit(content=f"""> ```{colour['codeblock']}\n> {colour['prefix']}{text}{colour['suffix']}```""")
-                await asyncio.sleep(1)
+        for _ in range(5):
+            # for colour in colours:
+            #     colour = colours[colour]
+            #     await message.edit(content=f"""> ```{colour['codeblock']}\n> {colour['prefix']}{text}{colour['suffix']}```""")
+            #     await asyncio.sleep(1)
+            for emoji in emojis:
+                await message.edit(content=f"{emoji} {text}")
+                await asyncio.sleep(.75)
 
     def calculate_age(self, born):
         today = datetime.date.today()
         return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+    @commands.command(name="rainbowreact", description="Create a rainbow reaction", usage=["[msg id]"])
+    async def rainbowreact(self, ctx, *, msg_id: int):
+        emojis = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"]
+        message = await ctx.fetch_message(msg_id)
+
+        # await message.add_reaction("🫡")
+        
+        for _ in range(5):
+            for emoji in emojis:
+                reaction = await message.add_reaction(emoji)
+                await asyncio.sleep(0.25)
+                await message.clear_reaction(emoji)
+
+        # await message.clear_reaction("🫡")
 
     @commands.command(name="dox", description="Dox a user.", usage=["[user]"])
     async def dox(self, ctx, *, user: discord.User):
@@ -325,7 +347,7 @@ Phone number  :: {phone}
 Address       :: {address}
 """)
 
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(msg)
 
         else:
             embed = imgembed.Embed(title=f"{user.name}'s dox", description=f"""**Name:** {name}
@@ -338,7 +360,7 @@ Address       :: {address}
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
 
@@ -364,12 +386,12 @@ Address       :: {address}
         r = requests.get("https://www.reddit.com/r/memes.json?sort=top&t=week", headers={"User-agent": "Mozilla/5.0"})
         if (r.status_code == 429):
             if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(f"```ini\n[ error ] Too many requests, please try again later.\n```", delete_after=cfg.get("message_settings")["auto_delete_delay"])
+                await ctx.send(f"```ini\n[ error ] Too many requests, please try again later.\n```")
             else:
                 embed = imgembed.Embed(title="Error", description=f"Too many requests, please try again later.")
                 embed_file = embed.save()
 
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
                 os.remove(embed_file)
             return
         meme = random.choice(r.json()["data"]["children"])["data"]["url"]
