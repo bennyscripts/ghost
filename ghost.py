@@ -68,6 +68,7 @@ ghost.add_cog(ghost_commands.NSFW(ghost))
 ghost.add_cog(ghost_commands.Text(ghost))
 ghost.add_cog(ghost_commands.Theming(ghost))
 ghost.add_cog(ghost_commands.Util(ghost))
+ghost.add_cog(ghost_commands.Abuse(ghost))
 
 for script_file in os.listdir("scripts"):
     if script_file.endswith(".py"):
