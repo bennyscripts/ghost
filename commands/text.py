@@ -61,6 +61,13 @@ class Text(commands.Cog):
     async def blank(self, ctx):
         await ctx.send("** **")
 
+    @commands.command(name="fakepurge", description="Flood chat with blank messages", usage="")
+    async def blank(self, ctx):
+        msgs = [str("** **\n" * 5) for i in range(10)] 
+        for msg in msgs:
+            await ctx.send(msg)
+            await asyncio.sleep(.5)
+
     @commands.command(name="ascii", description="Create ascii text art from text.", usage="[text]")
     async def ascii_(self, ctx, *, text: str):
         await ctx.send(f"```\n{asciiart.text2art(text)}\n```")
@@ -91,7 +98,7 @@ class Text(commands.Cog):
         for letter in text:
             output = output + letter + ""
             await msg.edit(content=output)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
 
     @commands.command(name="zalgo", description="Make your text Zalgo.", usage="[text]")
     async def zalgo(self, ctx, *, text: str):
