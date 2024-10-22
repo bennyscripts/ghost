@@ -6,4 +6,3 @@ pypresence
 requests
 pillow
 pystyle
-pyinstaller==5.11.0
