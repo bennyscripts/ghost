@@ -3,7 +3,7 @@ import os
 
 from . import console
 
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 PRODUCTION = True
 DEFAULT_CONFIG = {
     "token": "",
