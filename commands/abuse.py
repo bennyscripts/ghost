@@ -95,9 +95,8 @@ class Abuse(commands.Cog):
 
         for channel in ctx.guild.channels:
             if str(channel.type) == "text":
-                for permission in ctx.message.author.permissions_in(channel):
-                    if permission[0] == "send_messages" and permission[1] == True:
-                        channels.append(channel)
+                if channel.permissions_for(ctx.guild.me).send_messages:
+                    channels.append(channel)
                     
         console.print_info(f"Sending {len(channels) * ping_amount} pings...")
 
