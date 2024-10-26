@@ -8,3 +8,5 @@ config.json
 commands/.DS_Store
 utils/.DS_Store
 themes/jemery.json
+backups/*
+ghost.log
