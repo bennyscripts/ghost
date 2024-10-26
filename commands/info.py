@@ -72,23 +72,23 @@ class Info(commands.Cog):
 
     @commands.command(name="serverinfo", description="Get information about the server.", aliases=["si"], usage="")
     async def serverinfo(self, ctx):
-        cfg = config.Config()
+        info = {
+            "ID": ctx.guild.id,
+            "Name": ctx.guild.name,
+            "Owner": ctx.guild.owner,
+            # "Region": ctx.guild.region,
+            "Members": len(ctx.guild.members),
+            "Roles": len(ctx.guild.roles),
+            "Channels": len(ctx.guild.channels),
+            "Created at": ctx.guild.created_at
+        }
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(title=f"server info", extra_title=f"{ctx.guild.name}", description=f"""Name    :: {ctx.guild.name}
-ID      :: {ctx.guild.id}
-Owner   :: {ctx.guild.owner}
-Members :: {ctx.guild.member_count}""")
-            await ctx.send(str(msg) + shortener.shorten(f"{ctx.guild.icon_url}"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title=f"{ctx.guild.name} information", description=f"**ID:** {ctx.guild.id}\n**Owner:** {ctx.guild.owner.name}\n**Members:** {ctx.guild.member_count}", colour=cfg.get("theme")["colour"])
-            embed.set_thumbnail(url=str(ctx.guild.icon_url))
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {
+            "title": "Server Info",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "codeblock_desc": "\n".join([f"{key}{' ' * (10 - len(key))} :: {value}" for key, value in info.items()]),
+            "thumbnail": ctx.guild.icon.url
+        })
 
     @commands.command(name="avatar", description="Get the avatar of a user.", aliases=["av"], usage="[user]")
     async def avatar(self, ctx, user: discord.User = None):
