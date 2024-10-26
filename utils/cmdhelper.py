@@ -71,12 +71,13 @@ async def send_message(ctx, embed_obj: dict, extra_title=""):
     colour = embed_obj.get("colour", cfg.get("theme")["colour"])
     footer = embed_obj.get("footer", cfg.get("theme")["footer"])
     thumbnail = embed_obj.get("thumbnail", cfg.get("theme")["image"])
+    codeblock_desc = embed_obj.get("codeblock_desc", description)
 
     if cfg.get("message_settings")["style"] == "codeblock":
         description = description.replace("*", "")
         description = description.replace("`", "")
 
-        return await ctx.send(str(codeblock.Codeblock(title=title, description=description, extra_title=extra_title)), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        return await ctx.send(str(codeblock.Codeblock(title=title, description=codeblock_desc, extra_title=extra_title)), delete_after=cfg.get("message_settings")["auto_delete_delay"])
     elif cfg.get("message_settings")["style"] == "image":
         embed2 = imgembed.Embed(title=title, description=description, colour=colour)
         embed2.set_footer(text=footer)
