@@ -1,13 +1,18 @@
 import requests
 import discord
 import os
+import json
+import asyncio
+import time
 
 from discord.ext import commands
+from discord.utils import get
 
 from utils import config
 from utils import codeblock
 from utils import cmdhelper
 from utils import imgembed
+from utils import console
 
 class Account(commands.Cog):
     def __init__(self, bot):
@@ -37,6 +42,24 @@ class Account(commands.Cog):
 
             await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
             os.remove(embed_file)
+
+    @commands.command(name="backups", description="List your backups.", usage="")
+    async def backups(self, ctx):
+        if not os.path.exists("backups/"):
+            os.mkdir("backups/")
+
+        backups = os.listdir("backups/")
+
+        if len(backups) == 0:
+            await cmdhelper.send_message(ctx, {"title": "Backups", "description": "No backups found.", "colour": "ff0000"})
+            return
+        
+        description = ""
+        for backup in backups:
+            if backup.endswith(".json"):
+                description += f"{backup}\n"
+
+        await cmdhelper.send_message(ctx, {"title": "Backups", "description": description})
             
     @commands.group(name="backup", description="Backup commands.", usage="")
     async def backup(self, ctx):
@@ -76,93 +99,123 @@ class Account(commands.Cog):
         })
 
         if resp.status_code != 200:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(str(codeblock.Codeblock("Error", extra_title=f"Failed to get friend's list.")))
-            else:
-                embed = imgembed.Embed(title="Error", description="Failed to get friend's list.", colour=cfg.get("theme")["colour"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-                os.remove(embed_file)
-
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to get friends. {resp.status_code} {resp.text}"})
             return
 
         friends = resp.json()
-        friend_list = ["# friends\n"]
+        backup = {
+            "created_at": time.time(),
+            "type": "friends",
+            "list": []
+        }
 
         for friend in friends:
             if friend["type"] == 1:
-                friend_list.append(f"{friend['user']['username']}#{friend['user']['discriminator']}:{friend['user']['id']}")
+                backup["list"].append({
+                    "username": friend['user']['username'],
+                    "id": friend['user']['id']
+                })
 
-        with open("friends.txt", "w") as f:
-            f.write("\n".join(friend_list))
+        if not os.path.exists("backups/"):
+            os.mkdir("backups/")
+
+        with open("backups/friends.json", "w") as f:
+            f.write(json.dumps(backup))
         
-        if cfg.get("message_settings")["style"] == "codeblock":
-            await ctx.send(str(codeblock.Codeblock("friends backup", extra_title=f"Saved {len(friend_list) - 1} friends to friends.txt")))
-        else:
-            embed = imgembed.Embed(title="Friends Backup", description=f"Saved {len(friend_list) - 1} friends to friends.txt", colour=cfg.get("theme")["colour"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {"title": "Friends Backup", "description": f"Saved {len(friends)} friends to friends.json"})
 
     @backup.command(name="guilds", description="Backup your guilds.", usage="", aliases=["servers"])
     async def guilds(self, ctx):
         cfg = config.Config()
-        guilds = ["# guilds\n"]
+        backup = {
+            "created_at": time.time(),
+            "type": "guilds",
+            "list": []
+        }
 
         for guild in self.bot.guilds:
-            guilds.append(F"{guild.name}:{guild.id}")
+            invite = None
 
-        with open("guilds.txt", "w") as f:
-            f.write("\n".join(guilds))
+            for channel in guild.channels:
+                if channel.type == discord.ChannelType.text:
+                    try:
+                        invite = await channel.create_invite(max_age=0, max_uses=1, unique=True, validate=False, reason="sharing to a friend")
+                        console.print_success(f"Created and saved an invite for {guild.name}")
+                    except Exception as e:
+                        invite = None
+                        console.print_error(f"Failed to create invite for {guild.name}")
+                    break
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            await ctx.send(str(codeblock.Codeblock("guilds backup", extra_title=f"Saved {len(self.bot.guilds)} guilds to guilds.txt")))
-        else:
-            embed = imgembed.Embed(title="Guilds Backup", description=f"Saved {len(self.bot.guilds)} guilds to guilds.txt", colour=cfg.get("theme")["colour"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
-
-    @backup.command(name="restore", description="Restore a backup.", usage="[backup file]")
-    async def restore(self, ctx, backup_file: str):
-        cfg = config.Config()
-        
-        if not os.path.exists(backup_file):
-            if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(str(codeblock.Codeblock("Error", extra_title=f"Backup {backup_file} doesn't exist.")))
-            else:
-                embed = imgembed.Embed(title="Error", description=f"Backup {backup_file} doesn't exist.", colour=cfg.get("theme")["colour"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-                os.remove(embed_file)
+            backup["list"].append({
+                "name": guild.name,
+                "id": guild.id,
+                "invite": str(invite)
+            })
             
+            await asyncio.sleep(1)
+
+        if not os.path.exists("backups/"):
+            os.mkdir("backups/")
+
+        with open("backups/guilds.json", "w") as f:
+            f.write(json.dumps(backup))
+
+        await cmdhelper.send_message(ctx, {"title": "Guilds Backup", "description": f"Saved {len(self.bot.guilds)} guilds to guilds.json"})
+
+    @backup.command(name="restore", description="Restore a backup.", usage="[backup]")
+    async def restore(self, ctx, backup: str):
+        if not os.path.exists("backups/"):
+            os.mkdir("backups/")
+        backup_path = f"backups/{backup}.json"
+        cfg = config.Config()
+        headers = {
+                    "Authorization": f"{cfg.get('token')}",
+                    "Content-Type": "application/json",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                }
+
+        if not os.path.exists(backup_path):
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Backup {backup} doesn't exist.", "colour": "ff0000"})
             return
+            
+        # if not backup.endswith(".json"):
+        #     await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Backup {backup} is not a JSON file.", "colour": "ff00000"})
+        #     return
+        
+        await cmdhelper.send_message(ctx, {"title": "WARNING", "description": f"Restore backup is currenting a WIP feature. This could also result in your account getting banned! Please use with caution. Look at the console for backup progress.", "colour": "ebde34"})
+        
+        with open(backup_path, "r") as f:
+            backup = json.loads(f.read())
 
-        backup_type = ""
-        backup = []
+        if backup["type"] == "friends":
+            for friend in backup["list"]:
+                user_resp = requests.get(f"https://discord.com/api/v9/users/{friend['id']}", headers=headers)
+                if user_resp.status_code != 200:
+                    console.print_error(f"Failed to get {friend['username']}.")
+                    return
 
-        with open(backup_file, "r") as f:
-            lines = f.readlines()
-            backup_type = lines[0].replace("# ", "").replace("\n", "")
-            for line in lines[2:]:
-                line = line.replace("\n", "").split(":")
-                backup.append([line[0], line[-1]])
+                user = discord.User(state=self.bot._connection, data=user_resp.json())
+                
+                try:
+                    user.send_friend_request()
+                except Exception as e:
+                    console.print_error(f"Failed to add {friend['username']}.")
+                    console.print_error(e)
+                    return
+                
+                console.print_success(f"Added {friend['username']}!")
+                await asyncio.sleep(1)
 
-        print(f"{backup_type=}")
-        print(f"{backup=}")
+            await cmdhelper.send_message(ctx, {"title": "Restore Backup", "description": f"Restored {len(backup['list'])} friends. They have been sent a friend request."})
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            await ctx.send(str(codeblock.Codeblock("restore backup", extra_title=f"Restore backup is currenting a WIP feature.")))
+        elif backup["type"] == "guilds":
+            invites = [guild["invite"] for guild in backup["list"]]
+            invites = [invite for invite in invites if invite != "None"]
+            await cmdhelper.send_message(ctx, {"title": "Restore Backup", "description": f"I'm unable to automatically join guilds. Please manually join the following guilds. This will delete in {cfg.get('message_settings')['auto_delete_delay']} seconds."})
+            await ctx.send("\n".join(invites), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+
         else:
-            embed = imgembed.Embed(title="Restore Backup", description=f"Restore backup is currenting a WIP feature.", colour=cfg.get("theme")["colour"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Unknown backup type {backup['type']}. Ghost backup restore only supports backups made using Ghost.", "colour": "ff0000"})
 
 def setup(bot):
     bot.add_cog(Account(bot))
