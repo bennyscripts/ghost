@@ -277,6 +277,35 @@ Address       :: {address}
         meme = random.choice(r.json()["data"]["children"])["data"]["url"]
         await ctx.send(meme)
 
+    @commands.command(name="dadjoke", description="Get a dad joke.", usage="")
+    async def dadjoke(self, ctx):
+        r = requests.get("https://icanhazdadjoke.com/", headers={"Accept": "application/json"})
+        joke = r.json()["joke"]
+        await ctx.send(joke)
+
+    @commands.command(name="insult", description="Get a random insult.", usage="")
+    async def insult(self, ctx):
+        r = requests.get("https://evilinsult.com/generate_insult.php?lang=en&type=json")
+        insult = r.json()["insult"]
+        await ctx.send(insult)
+
+    @commands.command(name="compliment", description="Get a random compliment.", usage="")
+    async def compliment(self, ctx):
+        r = requests.get("https://8768zwfurd.execute-api.us-east-1.amazonaws.com/v1/compliments")
+        await ctx.send(r.content.replace(b'"', b'').decode("utf-8"))
+
+    @commands.command(name="catfact", description="Get a random cat fact.", usage="")
+    async def catfact(self, ctx):
+        r = requests.get("https://catfact.ninja/fact")
+        fact = r.json()["fact"]
+        await ctx.send(fact)
+
+    @commands.command(name="yomomma", description="Get a yo momma joke.", usage="")
+    async def yomomma(self, ctx):
+        r = requests.get("https://www.yomama-jokes.com/api/v1/jokes/random/")
+        joke = r.json()["joke"]
+        await ctx.send(joke)
+
     @commands.command(name="playsound", description="Play a 5 second sound.", usage="[mp3_url]")
     async def playsound(self, ctx, mp3_url):
         cfg = config.Config()
