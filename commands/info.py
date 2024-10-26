@@ -40,24 +40,35 @@ class Info(commands.Cog):
 
     @commands.command(name="userinfo", description="Get information about a user.", aliases=["ui"], usage="[user]")
     async def userinfo(self, ctx, user: discord.User = None):
-        cfg = config.Config()
         if user is None: user = ctx.author
-        created_at = user.created_at.strftime("%d %B, %Y")
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(title=f"user info", extra_title=f"{user.name}#{user.discriminator}", description=f"""Username   :: {user.name}
-ID         :: {user.id}
-Created at :: {created_at}""")
-            await ctx.send(msg + shortener.shorten(f"{user.avatar_url}"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        info = {
+            "ID": user.id,
+            "Username": user.name,
+            "Bot": user.bot,
+            "System": user.system,
+            "Created at": user.created_at
+        }
 
-        else:
-            embed = imgembed.Embed(title=f"{user} information", description=f"**Username:** {user.name}\n**ID:** {user.id}\n**Created at:** {created_at}", colour=cfg.get("theme")["colour"])
-            embed.set_thumbnail(url=str(user.avatar_url))
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
+        if ctx.guild is not None:
+            user = ctx.guild.get_member(user.id)
+            info["Nickname"] = user.nick
+            info["Joined at"] = user.joined_at
+            # info["Desktop status"] = user.desktop_status
+            # info["Mobile status"] = user.mobile_status
+            # info["Web status"] = user.web_status
+            info["Status"] = user.status
+            info["In VC"] = user.voice
+            # info["Premium"] = user.premium
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        longest_key = max([len(key) for key in info.keys()])
+
+        await cmdhelper.send_message(ctx, {
+            "title": "User Info",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()]),
+            "thumbnail": user.avatar.url
+        })
 
     @commands.command(name="serverinfo", description="Get information about the server.", aliases=["si"], usage="")
     async def serverinfo(self, ctx):
