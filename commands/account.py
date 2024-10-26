@@ -19,6 +19,11 @@ class Account(commands.Cog):
         self.bot = bot
         self.description = cmdhelper.cog_desc("account", "Account commands")
         self.cfg = config.Config()
+        self.headers = {
+            "Authorization": f"{self.cfg.get('token')}",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
 
     @commands.command(name="account", description="Account commands.", aliases=["acc"], usage="")
     async def account(self, ctx, selected_page: int = 1):
@@ -42,6 +47,69 @@ class Account(commands.Cog):
 
             await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
             os.remove(embed_file)
+
+    @commands.command(name="hypesquad", description="Change your hypesquad.", usage="[hypesquad]", aliases=["changehypesquad"])
+    async def hypesquad(self, ctx, house: str):
+        houses = {
+            "bravery": "1",
+            "brilliance": "2",
+            "balance": "3"
+        }
+        house = house.lower()
+
+        if house not in houses:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid house. Please choose from Bravery, Brilliance and Balance.", "colour": "ff0000"})
+            return
+        
+        resp = requests.post("https://discord.com/api/v9/hypesquad/online", headers=self.headers, json={"house_id": houses[house]})
+
+        if resp.status_code != 204:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change hypesquad. {resp.status_code} {resp.text}", "colour": "ff0000"})
+            return
+        
+        await cmdhelper.send_message(ctx, {"title": "Hypesquad", "description": f"Changed hypesquad to {house}."})
+
+    @commands.command(name="status", description="Change your status.", usage="[status]", aliases=["changestatus"])
+    async def status(self, ctx, status: str):
+        statuses = {
+            "online": "online",
+            "idle": "idle",
+            "dnd": "dnd",
+            "invisible": "invisible"
+        }
+        status = status.lower()
+
+        if status not in statuses:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid status. Please choose from Online, Idle, DND and Invisible.", "colour": "ff0000"})
+            return
+        
+        resp = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=self.headers, json={"status": statuses[status]})
+
+        if resp.status_code != 200:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change status.", "colour": "ff0000"})
+            return
+        
+        await cmdhelper.send_message(ctx, {"title": "Status", "description": f"Changed status to {status}."})
+
+    @commands.command(name="customstatus", description="Change your custom status.", usage="[status]", aliases=["changecustomstatus"])
+    async def customstatus(self, ctx, *, status: str):
+        resp = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=self.headers, json={"custom_status": {"text": status}})
+
+        if resp.status_code != 200:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change custom status.", "colour": "ff0000"})
+            return
+        
+        await cmdhelper.send_message(ctx, {"title": "Custom Status", "description": f"Changed custom status to {status}."})
+
+    @commands.command(name="clearstatus", description="Clear your custom status.", usage="")
+    async def clearstatus(self, ctx):
+        resp = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=self.headers, json={"custom_status": None})
+
+        if resp.status_code != 200:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to clear custom status.", "colour": "ff0000"})
+            return
+        
+        await cmdhelper.send_message(ctx, {"title": "Clear Custom Status", "description": f"Cleared custom status."})
 
     @commands.command(name="backups", description="List your backups.", usage="")
     async def backups(self, ctx):
