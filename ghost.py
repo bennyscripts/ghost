@@ -76,6 +76,18 @@ for script_file in os.listdir("scripts"):
 
 @ghost.event
 async def on_connect():
+    await ghost.add_cog(ghost_commands.Account(ghost))
+    await ghost.add_cog(ghost_commands.Fun(ghost))
+    await ghost.add_cog(ghost_commands.General(ghost))
+    await ghost.add_cog(ghost_commands.Img(ghost))
+    await ghost.add_cog(ghost_commands.Info(ghost))
+    await ghost.add_cog(ghost_commands.Mod(ghost))
+    await ghost.add_cog(ghost_commands.NSFW(ghost))
+    await ghost.add_cog(ghost_commands.Text(ghost))
+    await ghost.add_cog(ghost_commands.Theming(ghost))
+    await ghost.add_cog(ghost_commands.Util(ghost))
+    await ghost.add_cog(ghost_commands.Abuse(ghost))
+
     text = f"Logged in as {ghost.user.name}"
     if str(ghost.user.discriminator) != "0":
         text += f"#{ghost.user.discriminator}"
@@ -121,7 +133,7 @@ async def on_command_error(ctx, error):
     console.print_error(str(error))
 
 try:
-    ghost.run(cfg.get("token"))
+    ghost.run(cfg.get("token"), log_handler=None)
 except LoginFailure:
     console.print_error("Invalid token, please set a new one below.")
     new_token = input("> ")
