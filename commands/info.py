@@ -98,15 +98,15 @@ class Info(commands.Cog):
             user = ctx.author
 
         if cfg.get("message_settings")["style"] == "codeblock":
-            await ctx.send(str(codeblock.Codeblock(title="avatar", extra_title=str(user))) + shortener.shorten(f"{user.avatar_url}"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(str(codeblock.Codeblock(title="avatar", extra_title=str(user))) + user.avatar.url, delete_after=cfg.get("message_settings")["auto_delete_delay"])
 
         else:
             embed = imgembed.Embed(title=f"{user.name}'s avatar", description="The link has been added above for a higher quality image.", colour=cfg.get("theme")["colour"])
-            embed.set_thumbnail(url=str(user.avatar_url))
+            embed.set_thumbnail(url=str(user.avatar.url))
             embed.set_footer(text=cfg.get("theme")["footer"])
             embed_file = embed.save()
 
-            await ctx.send(content=f"<{shortener.shorten(str(user.avatar_url))}>", file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+            await ctx.send(content=f"<{user.avatar.url}>", file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
             os.remove(embed_file)
 
     @commands.command(name="tickets", description="Get a list of all tickets available in the server.")
