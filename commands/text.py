@@ -98,11 +98,7 @@ class Text(commands.Cog):
         for letter in text:
             output = output + letter + ""
             await msg.edit(content=output)
-            await asyncio.sleep(0.5)
-
-    @commands.command(name="zalgo", description="Make your text Zalgo.", usage="[text]")
-    async def zalgo(self, ctx, *, text: str):
-        await ctx.send(requests.get(f"https://api.timbw.xyz/zalgo?text={text}").text)
+            await asyncio.sleep(0.86)
 
 def setup(bot):
     bot.add_cog(Text(bot))
