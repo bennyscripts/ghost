@@ -265,23 +265,6 @@ Address       :: {address}
             await ctx.send(file=discord.File(embed_file, filename="embed.png"))
             os.remove(embed_file)
 
-
-    # @commands.command(name="creditcard", description="Generate a users credit card.", usage="[user]", aliases=["cc"])
-    # async def creditcard(self, ctx, *, user: discord.User):
-    #     card_number = random.randint(1000000000000000, 9999999999999999)
-    #     card_number = " ".join([str(card_number)[i:i+4] for i in range(0, len(str(card_number)), 4)])
-
-    #     background = Image.open("data/cc-template.png")
-    #     draw = ImageDraw.Draw(background)
-
-    #     draw.text((100, 340), user.name, (255, 255, 255), font=ImageFont.truetype("data/fonts/comicsans.ttf", 36), stroke_width=8, stroke_fill=(207, 131, 0))
-    #     draw.text((100, 250), card_number, (255, 255, 255), font=ImageFont.truetype("data/fonts/comicsans.ttf", 50), stroke_width=8, stroke_fill=(207, 131, 0))
-
-    #     background.save("cc-edited.png")
-
-    #     await ctx.send(file=discord.File("cc-edited.png"))
-    #     os.remove("cc-edited.png")
-
     @commands.command(name="meme", description="Gets a random meme.", aliases=["getmeme", "randommeme"], usage="")
     async def meme(self, ctx):
         r = requests.get("https://www.reddit.com/r/memes.json?sort=top&t=week", headers={"User-agent": "Mozilla/5.0"})
