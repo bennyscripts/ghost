@@ -95,6 +95,8 @@ class Img(commands.Cog):
         await attempting_msg.delete()
 
         if data.status_code == 200:
+            await attempting_msg.delete()
+
             body = data.json()
 
             if body["search_metadata"]["status"] != "Success":
@@ -148,6 +150,14 @@ class Img(commands.Cog):
 
                     for image in images:
                         os.remove(f"data/cache/{image}")
+        else:
+            await attempting_msg.delete()
+            await cmdhelper.send_message(ctx, {
+                "title": "Image Search",
+                "description": "The search failed, try another query.",
+                "colour": "#ff0000",
+                "footer": cfg.get("theme")["footer"],
+            }) 
 
 def setup(bot):
     bot.add_cog(Img(bot))
