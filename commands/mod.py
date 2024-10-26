@@ -66,63 +66,36 @@ class Mod(commands.Cog):
 
     @commands.command(name="ban", description="Ban a member from the command server.", usage="[member]")
     async def ban(self, ctx, member: discord.Member):
-        cfg = config.Config()
 
         try:
             await member.ban()
-
-            if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(codeblock.Codeblock(f"ban", extra_title=f"Banned {member.name}#{member.discriminator}"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title=f"Banned User", description=f"Banned {member.name}#{member.discriminator} from the server.", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Ban",
+                "description": f"Banned {member.name}#{member.discriminator}"
+            })
             
         except Exception as e:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(codeblock.Codeblock(f"error", extra_title=str(e)), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title=f"Error", description=f"{e}", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": f"{e}",
+                "colour": "ff0000"
+            })
 
     @commands.command(name="kick", description="Kick a member from the command server.", usage="[member]")
     async def kick(self, ctx, member: discord.Member):
-        cfg = config.Config()
-
         try:
             await member.kick()
-
-            if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(codeblock.Codeblock(f"kick", extra_title=f"Kicked {member.name}#{member.discriminator}"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title=f"Kicked User", description=f"Kicked {member.name}#{member.discriminator} from the server.", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Kick",
+                "description": f"Kicked {member.name}#{member.discriminator}"
+            })
             
         except Exception as e:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(codeblock.Codeblock(f"error", extra_title=str(e)), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title=f"Error", description=f"{e}", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": f"{e}",
+                "colour": "ff0000"
+            })
 
 def setup(bot):
     bot.add_cog(Mod(bot))
