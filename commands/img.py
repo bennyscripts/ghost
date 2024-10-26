@@ -118,8 +118,6 @@ class Img(commands.Cog):
                     amount_to_send = len(images_results)
                     images = []
 
-                    json.dump(body["images_results"], open("serpapi.json", "w"))
-
                     if len(images_results) > 4:
                         await cmdhelper.send_message(ctx, {
                             "title": "Image Search",
