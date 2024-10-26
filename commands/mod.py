@@ -38,6 +38,18 @@ class Mod(commands.Cog):
 
     @commands.command(name="clear", description="Clear a number of messages.", aliases=["purge"], usage="[number]")
     async def clear(self, ctx, number: int):
+        def is_me(m):
+            if ctx.channel.permissions_for(m.author).manage_messages:
+                return True
+            else:
+                return m.author == self.bot.user
+
+        deleted = await ctx.channel.purge(limit=number + 1, check=is_me)
+        await cmdhelper.send_message(ctx, {
+            "title": "Clear",
+            "description": f"Cleared {len(deleted) - 1} messages."
+        })
+
     @commands.command(name="purgechat", description="Purge the entire chat.", usage="")
     async def purgechat(self, ctx):
         def is_me(m):
