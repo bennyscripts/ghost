@@ -11,6 +11,7 @@ import base64
 import threading
 import json
 import string
+import logging
 
 from discord.errors import LoginFailure
 from discord.ext import commands
@@ -30,6 +31,10 @@ from utils import imgembed
 # import utils as ghost_utils
 import commands as ghost_commands
 
+if discord.__version__ < "2.0.0":
+    for _ in range(100):
+        console.print_error("Ghost only supports discord.py-self 2.0.0, please upgrade!")
+
 cfg = config.Config()
 cfg.check()
 files.create_defaults()
@@ -45,6 +50,7 @@ ghost = commands.Bot(
 )
 
 user = requests.get("https://discord.com/api/users/@me", headers={"Authorization": cfg.get("token")}).json()
+handler = logging.FileHandler(filename='ghost.log', encoding='utf-8', mode='w')
 
 try:
     if cfg.get("rich_presence"):
@@ -58,17 +64,18 @@ try:
 except Exception as e:
     console.print_error(f"Failed to connect to Discord RPC")
 
-ghost.add_cog(ghost_commands.Account(ghost))
-ghost.add_cog(ghost_commands.Fun(ghost))
-ghost.add_cog(ghost_commands.General(ghost))
-ghost.add_cog(ghost_commands.Img(ghost))
-ghost.add_cog(ghost_commands.Info(ghost))
-ghost.add_cog(ghost_commands.Mod(ghost))
-ghost.add_cog(ghost_commands.NSFW(ghost))
-ghost.add_cog(ghost_commands.Text(ghost))
-ghost.add_cog(ghost_commands.Theming(ghost))
-ghost.add_cog(ghost_commands.Util(ghost))
-ghost.add_cog(ghost_commands.Abuse(ghost))
+if discord.__version__ < "2.0.0":
+    ghost.add_cog(ghost_commands.Account(ghost))
+    ghost.add_cog(ghost_commands.Fun(ghost))
+    ghost.add_cog(ghost_commands.General(ghost))
+    ghost.add_cog(ghost_commands.Img(ghost))
+    ghost.add_cog(ghost_commands.Info(ghost))
+    ghost.add_cog(ghost_commands.Mod(ghost))
+    ghost.add_cog(ghost_commands.NSFW(ghost))
+    ghost.add_cog(ghost_commands.Text(ghost))
+    ghost.add_cog(ghost_commands.Theming(ghost))
+    ghost.add_cog(ghost_commands.Util(ghost))
+    ghost.add_cog(ghost_commands.Abuse(ghost))
 
 for script_file in os.listdir("scripts"):
     if script_file.endswith(".py"):
@@ -76,17 +83,18 @@ for script_file in os.listdir("scripts"):
 
 @ghost.event
 async def on_connect():
-    await ghost.add_cog(ghost_commands.Account(ghost))
-    await ghost.add_cog(ghost_commands.Fun(ghost))
-    await ghost.add_cog(ghost_commands.General(ghost))
-    await ghost.add_cog(ghost_commands.Img(ghost))
-    await ghost.add_cog(ghost_commands.Info(ghost))
-    await ghost.add_cog(ghost_commands.Mod(ghost))
-    await ghost.add_cog(ghost_commands.NSFW(ghost))
-    await ghost.add_cog(ghost_commands.Text(ghost))
-    await ghost.add_cog(ghost_commands.Theming(ghost))
-    await ghost.add_cog(ghost_commands.Util(ghost))
-    await ghost.add_cog(ghost_commands.Abuse(ghost))
+    if discord.__version__ >= "2.0.0":
+        await ghost.add_cog(ghost_commands.Account(ghost))
+        await ghost.add_cog(ghost_commands.Fun(ghost))
+        await ghost.add_cog(ghost_commands.General(ghost))
+        await ghost.add_cog(ghost_commands.Img(ghost))
+        await ghost.add_cog(ghost_commands.Info(ghost))
+        await ghost.add_cog(ghost_commands.Mod(ghost))
+        await ghost.add_cog(ghost_commands.NSFW(ghost))
+        await ghost.add_cog(ghost_commands.Text(ghost))
+        await ghost.add_cog(ghost_commands.Theming(ghost))
+        await ghost.add_cog(ghost_commands.Util(ghost))
+        await ghost.add_cog(ghost_commands.Abuse(ghost))
 
     text = f"Logged in as {ghost.user.name}"
     if str(ghost.user.discriminator) != "0":
@@ -98,6 +106,12 @@ async def on_connect():
     console.print_info(text)
     console.print_info(f"You can now use commands with {cfg.get('prefix')}")
     print()
+
+    if discord.__version__ < "2.0.0":
+        for _ in range(5):
+            console.print_warning("Please update discord.py-self! Some features of Ghost may not function properly.")
+        console.print_warning("Required version: 2.0.0")
+        console.print_warning("Please close ghost and run 'pip install -U discord.py-self'")
 
     notifier.Notifier.send("Ghost", text)
 
@@ -133,7 +147,10 @@ async def on_command_error(ctx, error):
     console.print_error(str(error))
 
 try:
-    ghost.run(cfg.get("token"), log_handler=None)
+    if discord.__version__ >= "2.0.0":
+        ghost.run(cfg.get("token"), log_handler=handler)
+    else:
+        ghost.run(cfg.get("token"))
 except LoginFailure:
     console.print_error("Invalid token, please set a new one below.")
     new_token = input("> ")
