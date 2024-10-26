@@ -118,12 +118,10 @@ class Info(commands.Cog):
                 if "ticket" in channel.name.lower():
                     tickets.append(f"#{channel.name}")
         
-        await ctx.send(
-            str(codeblock.Codeblock(
-                "tickets",
-                description="\n".join(tickets) if tickets else "There were no ticket channels found."
-            ))
-        )
+        await cmdhelper.send_message(ctx, {
+            "title": "Tickets",
+            "description": "\n".join(tickets) if tickets else "There were no tickets found."
+        })
 
     @commands.command(name="hiddenchannels", description="List all hidden channels.", aliases=["privchannels", "privatechannels"])
     async def hiddenchannels(self, ctx):
