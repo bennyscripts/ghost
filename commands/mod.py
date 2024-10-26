@@ -38,19 +38,19 @@ class Mod(commands.Cog):
 
     @commands.command(name="clear", description="Clear a number of messages.", aliases=["purge"], usage="[number]")
     async def clear(self, ctx, number: int):
-        cfg = config.Config()
-        deleted = await ctx.channel.purge(limit=number + 1)
+    @commands.command(name="purgechat", description="Purge the entire chat.", usage="")
+    async def purgechat(self, ctx):
+        def is_me(m):
+            if ctx.channel.permissions_for(m.author).manage_messages:
+                return True
+            else:
+                return m.author == self.bot.user
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            await ctx.send(codeblock.Codeblock(f"clear", extra_title=f"Purged {len(deleted) - 1} messages."), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title=f"Clear", description=f"Purged {len(deleted) - 1} messages.", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        delete = await ctx.channel.purge(check=is_me)
+        await cmdhelper.send_message(ctx, {
+            "title": "Chat Purge",
+            "description": f"Purged {len(delete)} messages."
+        })
 
     @commands.command(name="ban", description="Ban a member from the command server.", usage="[member]")
     async def ban(self, ctx, member: discord.Member):
