@@ -21,7 +21,7 @@ DEFAULT_CONFIG = {
 DEFAULT_THEME = {
     "title": "Ghost",
     "emoji": "\ud83d\udc99",
-    "image": "https://media.discordapp.net/attachments/1108759268729028608/1138157957192896672/icon.png?width=1138&height=1138",
+    "image": "https://raw.githubusercontent.com/bennyscripts/ghost/refs/heads/main/ghost.png",
     "colour": "#3A7CFE",
     "footer": "ghost.cool",
     "style": "image"
@@ -43,6 +43,8 @@ class Config:
                 self.config["theme"] = self.theme
     
     def check(self):
+        if not os.path.exists("backups/"):
+            os.mkdir("backups/")
         if not os.path.exists("config.json"):
             json.dump(DEFAULT_CONFIG, open("config.json", "w"), indent=4)
             console.print_info("Created config file")
