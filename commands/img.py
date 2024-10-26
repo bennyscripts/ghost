@@ -91,8 +91,6 @@ class Img(commands.Cog):
 
         url = base_url + "&".join(f"{param}={params[param]}" for param in params)
         data = requests.get(url)
-        
-        await attempting_msg.delete()
 
         if data.status_code == 200:
             await attempting_msg.delete()
@@ -125,24 +123,24 @@ class Img(commands.Cog):
                     if len(images_results) > 4:
                         await cmdhelper.send_message(ctx, {
                             "title": "Image Search",
-                            "description": f"We found {len(images_results)} results for {query}. The first few results will be sent.",
+                            "description": f"We found {len(images_results)} results for {query}. A random result will be sent.",
                             "colour": cfg.get("theme")["colour"],
                             "footer": cfg.get("theme")["footer"]
                         })
 
-                        amount_to_send = 5
+                    
+                    image_to_send = random.randint(0, amount_to_send - 1)
 
-                    for i in range(amount_to_send):
-                        image = images_results[i]["original"]
-                        res = requests.get(image)
-                        if "content-type" in res.headers:
-                            extension = str(mimetypes.guess_extension(res.headers["content-type"])).replace(".", "")
-                            
-                            if extension in ["jpeg", "png", "jpg"]:
-                                new_name = str(random.randint(1000,9999)) + f".{extension}"
+                    image = images_results[image_to_send]["original"]
+                    res = requests.get(image)
+                    if "content-type" in res.headers:
+                        extension = str(mimetypes.guess_extension(res.headers["content-type"])).replace(".", "")
+                        
+                        if extension in ["jpeg", "png", "jpg"]:
+                            new_name = str(random.randint(1000,9999)) + f".{extension}"
 
-                                with open(f"data/cache/{new_name}", "wb") as file:
-                                    file.write(res.content)
+                            with open(f"data/cache/{new_name}", "wb") as file:
+                                file.write(res.content)
 
                                 images.append(new_name)
 
