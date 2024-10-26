@@ -10,11 +10,74 @@ from utils import codeblock
 from utils import cmdhelper
 from utils import imgembed
 
+class RedditNSFW:
+    def __init__(self):
+        self.types = ["boobs", "ass", "hentai", "porn", "pussy", "tittydrop", "tittypop", "femboy", "thighs"]
+        self.user_agent = "Mozilla/5.0 (Windows NT 6.2;en-US) AppleWebKit/537.32.36 (KHTML, live Gecko) Chrome/56.0.3075.83 Safari/537.32"
+        self.headers = {"User-Agent": self.user_agent}
+
+    def get_image(self, type):
+        if type not in self.types:
+            return "Invalid type."
+    
+        else:
+            for t in self.types:
+                if type == t:
+                    request = requests.get(f"https://www.reddit.com/r/{t}/random.json", headers=self.headers)
+                    if request.status_code == 200:
+                        data = request.json()
+                        url = data[0]["data"]["children"][0]["data"]["url"]
+                        if "redgifs" in str(url):
+                            url = data[0]["data"]["children"][0]["data"]["preview"]["reddit_video_preview"]["fallback_url"]
+
+                        return url
+
+    def porn(self):
+        url = None
+
+        while url is None:
+            url = self.get_image("porn")
+
+        return url
+
+    def boobs(self):
+        url = None
+
+        while url is None:
+            url = self.get_image(random.choice(["boobs", "tittydrop", "tittypop"]))
+
+        return url
+    
+    def ass(self):
+        url = None
+
+        while url is None:
+            url = self.get_image("ass")
+
+        return url
+    
+    def pussy(self):
+        url = None
+
+        while url is None:
+            url = self.get_image("pussy")
+
+        return url
+    
+    def thighs(self):
+        url = None
+
+        while url is None:
+            url = self.get_image("thighs")
+
+        return url
+
 class NSFW(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.description = cmdhelper.cog_desc("nsfw", "NSFW commands")
         self.cfg = config.Config()
+        self.reddit_client = RedditNSFW()
 
     @commands.command(name="nsfw", description="NSFW commands.", aliases=["notsafeforwork"], usage="")
     async def nsfw(self, ctx, selected_page: int = 1):
@@ -41,51 +104,40 @@ class NSFW(commands.Cog):
     
     @commands.command(name="hentai", description="Get a random hentai image.", usage="")
     async def hentai(self, ctx):
-        cfg = config.Config()
         r = requests.get("https://nekobot.xyz/api/image?type=hentai")
         data = r.json()
-        await ctx.send(data["message"], delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        await ctx.send(data["message"])
 
-    @commands.command(name="thighs", description="Get a random thighs image.", aliases=["thigh", "hthigh"],usage="")
+    @commands.command(name="thighs", description="Get a random thighs pic.", aliases=["thigh"],usage="")
     async def thigh(self, ctx):
-        cfg = config.Config()
-        r = requests.get("https://nekobot.xyz/api/image?type=hthigh")
-        data = r.json()
-        await ctx.send(data["message"], delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        data = self.reddit_client.thighs()
+        await ctx.send(data)
 
-    @commands.command(name="ass", description="Get a random ass image.", usage="")
+    @commands.command(name="ass", description="Get a random ass pic.", usage="")
     async def ass(self, ctx):
-        cfg = config.Config()
-        r = requests.get("https://nekobot.xyz/api/image?type=hass")
-        data = r.json()
-        await ctx.send(data["message"], delete_after=cfg.get("message_settings")["auto_delete_delay"])     
+        data = self.reddit_client.ass()
+        await ctx.send(data)     
 
-    @commands.command(name="femboy", description="Get a random femboy image.", usage="")
-    async def femboy(self, ctx):
-        cfg = config.Config()
-        r = requests.get("https://r34-json-api.herokuapp.com/posts?tags=femboy")
-        data = r.json()
-        randimg = random.choice(data)
-        await ctx.send(randimg["file_url"], delete_after=cfg.get("message_settings")["auto_delete_delay"])
+    @commands.command(name="boobs", description="Get a random tit pic.", usage="", aliases=["tits", "tittys", "titty"])
+    async def boobs(self, ctx):
+        data = self.reddit_client.boobs()
+        await ctx.send(data)     
+
+    @commands.command(name="pussy", description="Get a random pussy pic.", usage="")
+    async def pussy(self, ctx):
+        data = self.reddit_client.pussy()
+        await ctx.send(data)     
+
+    @commands.command(name="porn", description="Get a random porn gif.", usage="", aliases=["porngif"])
+    async def porn(self, ctx):
+        data = self.reddit_client.porn()
+        await ctx.send(data)     
 
     @commands.command(name="neko", description="Get a random neko image.", usage="")
     async def neko(self, ctx):
-        cfg = config.Config()
         r = requests.get("https://nekobot.xyz/api/image?type=neko")
         data = r.json()
-        await ctx.send(data["message"], delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-    @commands.command(name="rule34", description="Get a rule34 image by tag.", aliases=["r34"], usage="")  
-    async def rule34(self, ctx, *, tag):
-        cfg = config.Config()
-        if (("child" in tag) or ("shota" in tag) or ("loli" in tag)):
-            await ctx.send("Sorry, but that tag is illegal ❌", delete_after=cfg.get("message_settings")["auto_delete_delay"]) 
-            return
-        r = requests.get(f"https://r34-json-api.herokuapp.com/posts?tags={tag}")
-        data = r.json()
-        randimg = random.choice(data)
-        await ctx.send(randimg["file_url"], delete_after=cfg.get("message_settings")["auto_delete_delay"])  
-
+        await ctx.send(data["message"])
 
 def setup(bot):
     bot.add_cog(NSFW(bot))
