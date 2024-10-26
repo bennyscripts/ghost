@@ -59,18 +59,10 @@ class Fun(commands.Cog):
         msg = await ctx.send("> Flipping the coin...")
 
         await asyncio.sleep(1)
-        for i in range(random.randint(len(sides), 5)):
-            if i % len(sides) == 0:
-                i = 0
-
-            await msg.edit(content="> " + sides[i].capitalize() + "...")
-            await asyncio.sleep(1)
-
         await msg.edit(content=f"> The coin landed on `{random.choice(sides)}`!")
 
     @commands.command(name="iq", description="Get the IQ of a user.", usage="[user]", aliases=["howsmart", "iqrating"])
     async def iq(self, ctx, *, user: discord.User):
-        cfg = config.Config()
         iq = random.randint(45, 135)
         smart_text = ""
 
@@ -83,90 +75,39 @@ class Fun(commands.Cog):
         elif iq < 50:
             smart_text = "They're severely retarded."
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("iq", extra_title=f"{user.name}'s IQ is {iq}. {smart_text}")
-            await ctx.send(msg)
-
-        else:
-            embed = imgembed.Embed(title=f"{user.name}'s iq", description=f"{user.name}'s IQ is {iq}. {smart_text}", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        embed = discord.Embed(title=f"{user.name}'s IQ", description=f"{user.name}'s IQ is {iq}. {smart_text}")
+        await cmdhelper.send_message(ctx, embed.to_dict())
 
     @commands.command(name="howgay", description="Get the gayness of a user.", usage="[user]", aliases=["gay", "gayrating"])
     async def howgay(self, ctx, *, user: discord.User):
-        cfg = config.Config()
         gay_percentage = random.randint(0, 100)
-        msg = codeblock.Codeblock("how gay", extra_title=f"{user.name} is {gay_percentage}% gay.")
-
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("how gay", extra_title=f"{user.name} is {gay_percentage}% gay.")
-            await ctx.send(msg)
-
-        else:
-            embed = imgembed.Embed(title=f"how gay is {user.name}?!", description=f"{user.name} is {gay_percentage}% gay.", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        
+        embed = discord.Embed(title=f"how gay is {user.name}?", description=f"{user.name} is {gay_percentage}% gay!")
+        await cmdhelper.send_message(ctx, embed.to_dict())
 
     @commands.command(name="howblack", description="Get the blackness of a user.", usage="[user]", aliases=["black", "blackrating"])
     async def howblack(self, ctx, *, user: discord.User):
-        cfg = config.Config()
         black_percentage = random.randint(0, 100)
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("how black", extra_title=f"{user.name} is {black_percentage}% black.")
-            await ctx.send(msg)
-
-        else:
-            embed = imgembed.Embed(title=f"how black is {user.name}?!", description=f"{user.name} is {black_percentage}% black.", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        embed = discord.Embed(title=f"how black is {user.name}?", description=f"{user.name} is {black_percentage}% black!")
+        await cmdhelper.send_message(ctx, embed.to_dict())
 
     @commands.command(name="pp", description="Get the size of a user's dick.", usage="[user]", aliases=["dick", "dicksize", "penis"])
     async def pp(self, ctx, *, user: discord.User):
-        cfg = config.Config()
         penis = "8" + ("=" * random.randint(0, 12)) + "D"
         inches = str(len(penis)) + "\""
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("pp", extra_title=f"{user.name} has a {inches} pp.", description=penis)
-            await ctx.send(msg)
-
-        else:
-            embed = imgembed.Embed(title=f"{user.name}'s pp size", description=f"{user.name} has a {inches} pp.\n{penis}", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        embed = discord.Embed(title=f"{user.name}'s pp size", description=f"{user.name} has a {inches} pp.\n{penis}")
+        await cmdhelper.send_message(ctx, embed.to_dict())
 
     @commands.command(name="blocksend", description="Send a message to a blocked user.", usage="[user] [message]")
     async def blocksend(self, ctx, user: discord.User, *, message: str):
-        cfg = config.Config()
-        
         await user.unblock()
         await user.send(message)
         await user.block()
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("block send", extra_title=f"Sent a message to {user.name} ({user.id})", description=f"Message :: {message}")
-            await ctx.send(msg)
-
-        else:
-            embed = imgembed.Embed(title=f"block send", description=f"Sent a message to {user.name} ({user.id}).\n**Message:** {message}", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        embed = discord.Embed(title=f"block send", description=f"Sent a message to {user.name} ({user.id}).\n**Message:** {message}")
+        await cmdhelper.send_message(ctx, embed_obj=embed.to_dict())
 
     def get_formatted_items(self, json_obj, tabs=0):
         formatted = ""
@@ -220,110 +161,71 @@ class Fun(commands.Cog):
 
     @commands.command(name="kanye", description="Random kanye quote.", usage="")
     async def kanye(self, ctx):
-        cfg = config.Config()
         resp = requests.get("https://api.kanye.rest/")
 
         if resp.status_code == 200:
             data = resp.json()
-
-            if cfg.get("message_settings")["style"] == "codeblock":
-                msg = codeblock.Codeblock("kanye", extra_title=data["quote"])
-                await ctx.send(msg)
-
-            else:
-                embed = imgembed.Embed(title=f"Kanye Quote", description=data["quote"], colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-                os.remove(embed_file)
+            embed = discord.Embed(title=f"Kanye Quote", description=data["quote"])
 
         else:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                msg = codeblock.Codeblock("error", extra_title="Failed to get data.")
-                await ctx.send(msg)
+            embed = discord.Embed(title="Error", description="Failed to get Kanye quote.")
 
-            else:
-                embed = imgembed.Embed(title=f"Error", description="Failed to get data.", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-                os.remove(embed_file)
+        await cmdhelper.send_message(ctx, embed.to_dict())
 
     @commands.command(name="socialcredit", description="Get a user's social credit score.", usage="[user]", aliases=["socialcreditscore", "socialcreditrating", "socialcredits", "socialrating", "socialscore"])
     async def socialcredit(self, ctx, *, user: discord.User):
-        cfg = config.Config()
         score = random.randint(-5000000, 10000000)
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("social credit", extra_title=f"{user.name}'s social credit score is {score}.")
-            await ctx.send(msg)
-
-        else:
-            embed = imgembed.Embed(title=f"Social Credit", description=f"{user.name}'s social credit score is {score}.", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        embed = discord.Embed(title=f"Social Credit", description=f"{user.name}'s social credit score is {score}.")
+        await cmdhelper.send_message(ctx, embed.to_dict())
 
     @commands.command(name="dice", description="Roll a dice with a specific side count.", usage="[sides]", aliases=["roll"])
     async def dice(self, ctx, sides: int = 6):
         cfg = config.Config()
         number = random.randint(1, sides)
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(f"{sides} side dice", extra_title=f"You rolled a {number}.")
-            await ctx.send(msg)
+        embed = discord.Embed(title=f"{sides} side dice", description=f"You rolled a {number}.")
+        await cmdhelper.send_message(ctx, embed.to_dict())
 
-        else:
-            embed = imgembed.Embed(title=f"{sides} side dice", description=f"You rolled a {number}.", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
-
-    @commands.command(name="rainbow", description="Create rainbow text.", usage="[text]", aliases=["rainbowtext"])
-    async def rainbow(self, ctx, *, text: str):
-        # colours = {"red": {"codeblock": "diff", "prefix": "-", "suffix": ""},
-        #     "orange": {"codeblock": "cs", "prefix": "#", "suffix": ""},
-        #     "yellow": {"codeblock": "fix", "prefix": "", "suffix": ""},
-        #     "green": {"codeblock": "cs", "prefix": "'", "suffix": "'",},
-        #     "blue": {"codeblock": "md", "prefix": "#", "suffix": ""}}
+    # @commands.command(name="rainbow", description="Create rainbow text.", usage="[text]", aliases=["rainbowtext"])
+    # async def rainbow(self, ctx, *, text: str):
+    #     # colours = {"red": {"codeblock": "diff", "prefix": "-", "suffix": ""},
+    #     #     "orange": {"codeblock": "cs", "prefix": "#", "suffix": ""},
+    #     #     "yellow": {"codeblock": "fix", "prefix": "", "suffix": ""},
+    #     #     "green": {"codeblock": "cs", "prefix": "'", "suffix": "'",},
+    #     #     "blue": {"codeblock": "md", "prefix": "#", "suffix": ""}}
         
-        # emojis = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"]
-        emojis = ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣"]
-        message = await ctx.send(text)
+    #     # emojis = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"]
+    #     emojis = ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣"]
+    #     message = await ctx.send(text)
 
-        for _ in range(5):
-            # for colour in colours:
-            #     colour = colours[colour]
-            #     await message.edit(content=f"""> ```{colour['codeblock']}\n> {colour['prefix']}{text}{colour['suffix']}```""")
-            #     await asyncio.sleep(1)
-            for emoji in emojis:
-                await message.edit(content=f"{emoji} {text}")
-                await asyncio.sleep(.75)
+    #     for _ in range(5):
+    #         # for colour in colours:
+    #         #     colour = colours[colour]
+    #         #     await message.edit(content=f"""> ```{colour['codeblock']}\n> {colour['prefix']}{text}{colour['suffix']}```""")
+    #         #     await asyncio.sleep(1)
+    #         for emoji in emojis:
+    #             await message.edit(content=f"{emoji} {text}")
+    #             await asyncio.sleep(.75)
+
+    # @commands.command(name="rainbowreact", description="Create a rainbow reaction", usage=["[msg id]"])
+    # async def rainbowreact(self, ctx, *, msg_id: int):
+    #     emojis = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"]
+    #     message = await ctx.fetch_message(msg_id)
+
+    #     # await message.add_reaction("🫡")
+        
+    #     for _ in range(5):
+    #         for emoji in emojis:
+    #             reaction = await message.add_reaction(emoji)
+    #             await asyncio.sleep(0.25)
+    #             await message.clear_reaction(emoji)
+
+    #     # await message.clear_reaction("🫡")
 
     def calculate_age(self, born):
         today = datetime.date.today()
         return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-
-    @commands.command(name="rainbowreact", description="Create a rainbow reaction", usage=["[msg id]"])
-    async def rainbowreact(self, ctx, *, msg_id: int):
-        emojis = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"]
-        message = await ctx.fetch_message(msg_id)
-
-        # await message.add_reaction("🫡")
-        
-        for _ in range(5):
-            for emoji in emojis:
-                reaction = await message.add_reaction(emoji)
-                await asyncio.sleep(0.25)
-                await message.clear_reaction(emoji)
-
-        # await message.clear_reaction("🫡")
 
     @commands.command(name="dox", description="Dox a user.", usage=["[user]"])
     async def dox(self, ctx, *, user: discord.User):
@@ -382,18 +284,13 @@ Address       :: {address}
 
     @commands.command(name="meme", description="Gets a random meme.", aliases=["getmeme", "randommeme"], usage="")
     async def meme(self, ctx):
-        cfg = config.Config()
         r = requests.get("https://www.reddit.com/r/memes.json?sort=top&t=week", headers={"User-agent": "Mozilla/5.0"})
-        if (r.status_code == 429):
-            if cfg.get("message_settings")["style"] == "codeblock":
-                await ctx.send(f"```ini\n[ error ] Too many requests, please try again later.\n```")
-            else:
-                embed = imgembed.Embed(title="Error", description=f"Too many requests, please try again later.")
-                embed_file = embed.save()
 
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-                os.remove(embed_file)
+        if (r.status_code == 429):
+            embed = discord.Embed(title="Error", description="Too many requests, please try again later.")
+            await cmdhelper.send_message(ctx, embed.to_dict())
             return
+        
         meme = random.choice(r.json()["data"]["children"])["data"]["url"]
         await ctx.send(meme)
 
