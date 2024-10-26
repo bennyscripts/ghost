@@ -100,5 +100,15 @@ class Text(commands.Cog):
             await msg.edit(content=output)
             await asyncio.sleep(0.86)
 
+    @commands.command(name="cembed", description="Create a custom embed.", usage="[title] [description] [footer] [colour] [image]", aliases=["customembed"])
+    async def cembed(self, ctx, title: str, description: str, footer: str = "", colour: str = "111112", image: str = ""):
+        await cmdhelper.send_message(ctx, {
+            "title": title,
+            "description": description,
+            "footer": footer,
+            "colour": colour,
+            "thumbnail": image
+        }, extra_title=footer)
+
 def setup(bot):
     bot.add_cog(Text(bot))
