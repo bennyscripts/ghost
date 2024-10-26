@@ -128,16 +128,14 @@ class Info(commands.Cog):
         channels = []
 
         for channel in ctx.guild.channels:
-            for permission in ctx.message.author.permissions_in(channel):
-                if permission[0] == "read_messages" and permission[1] == False:
+            if str(channel.type) == "text":
+                if channel.overwrites_for(ctx.author.top_role).read_messages == False:
                     channels.append(f"#{channel.name}")
 
-        await ctx.send(
-            str(codeblock.Codeblock(
-                "hidden channels",
-                description="\n".join(channels) if channels else "There were no hidden channels found."
-            ))
-        )
+        await cmdhelper.send_message(ctx, {
+            "title": "Hidden Channels",
+            "description": "\n".join(channels) if channels else "There were no hidden channels found."
+        })
 
 def setup(bot):
     bot.add_cog(Info(bot))
