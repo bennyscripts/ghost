@@ -52,6 +52,9 @@ def print_cmd(text):
 def print_info(text):
     print(f"{colorama.Fore.LIGHTGREEN_EX}{colorama.Style.BRIGHT}[INFO]{colorama.Style.RESET_ALL} {text}")
 
+def print_success(text):
+    print(f"{colorama.Fore.LIGHTGREEN_EX}{colorama.Style.BRIGHT}[SUCCESS]{colorama.Style.RESET_ALL} {text}")
+
 def print_error(text):
     print(f"{colorama.Fore.LIGHTRED_EX}{colorama.Style.BRIGHT}[ERROR]{colorama.Style.RESET_ALL} {text}")
 
