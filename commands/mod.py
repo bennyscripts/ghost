@@ -64,6 +64,35 @@ class Mod(commands.Cog):
             "description": f"Purged {len(delete)} messages."
         })
 
+    @commands.command(name="banlist", description="List all banned members.", usage="")
+    async def banlist(self, ctx):
+        if not ctx.message.author.guild_permissions.administrator:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
+
+        bans = [entry async for entry in ctx.guild.bans(limit=2000)]
+
+        if len(bans) == 0:
+            await cmdhelper.send_message(ctx, {
+                "title": "Banlist",
+                "description": "No members are banned."
+            })
+
+        else:
+            description = ""
+
+            for ban in bans:
+                description += f"{ban.user.name}\n"
+
+            await cmdhelper.send_message(ctx, {
+                "title": "Banlist",
+                "description": description
+            })
+
     @commands.command(name="ban", description="Ban a member from the command server.", usage="[member]")
     async def ban(self, ctx, member: discord.Member):
 
