@@ -18,10 +18,16 @@ class NitroSniper(commands.Cog):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
 
-    async def validate(self, code):
-        cfg = config.Config()
+    async def save_code(self, code):
+        with open("data/sniped_codes.txt", "a") as f:
+            f.write(f"{code}\n")
 
-        if cfg.check_sniped_code(code):
+    async def check_code(self, code):
+        with open("data/sniped_codes.txt", "r") as f:
+            return code in f.read()
+
+    async def validate(self, code):
+        if await self.check_code(code):
             return False, "Code has already been sniped."
 
         if len(code) != 16:
@@ -48,8 +54,9 @@ class NitroSniper(commands.Cog):
 
     async def snipe(self, message, sent_time):
         cfg = config.Config()
+        sniper = cfg.get_sniper("nitro")
 
-        if cfg.get_sniper_status("nitro") is False:
+        if sniper.enabled is False:
             return
 
         if message.author.id == self.bot.user.id:
@@ -60,7 +67,7 @@ class NitroSniper(commands.Cog):
             valid, error = await self.validate(code)
             
             if valid is False:
-                if cfg.snipers_ignore_invalid("nitro"):
+                if sniper.ignore_invalid:
                     return
                 
                 console.print_sniper("Nitro", f"Failed to validate nitro gift", {
@@ -73,9 +80,15 @@ class NitroSniper(commands.Cog):
                 success, resp = await self.claim(code)
                 snipe_time = time.time()
                 snipe_delta = (snipe_time - sent_time) * 1000
+                subscription_plan = "N/A"
 
-                if "redeemed already" in resp.lower():
-                    if cfg.snipers_ignore_invalid("nitro"):
+                if "redeemed already" in str(resp).lower():
+                    try:
+                        subscription_plan = resp["subscription_plan"]["name"]
+                    except:
+                        subscription_plan = "N/A"
+
+                    if sniper.ignore_invalid:
                         return
                     
                     console.print_sniper("Nitro", "Failed to claim nitro gift", {
@@ -89,13 +102,13 @@ class NitroSniper(commands.Cog):
                         "Code": code,
                         "Author": message.author,
                         "Content": message.content,
-                        "Nitro Type": resp["subscription_plan"]["name"] if success else "N/A",
+                        "Nitro Type": subscription_plan,
                         "Time": f"{snipe_delta:.2f}ms"
                     }, success=success)
 
                     self.notifier.send("Nitro", f"Sniped a nitro gift. See console for details.")
 
-            cfg.add_nitro_snipe(code)
+            await self.save_code(code)
 
     @commands.Cog.listener()
     async def on_message(self, message):
