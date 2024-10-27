@@ -56,12 +56,16 @@ class Config:
 
         if os.path.exists("config.json"):
             self.config = json.load(open("config.json"))
-            self.config_without_theme_dict = json.load(open("config.json"))
 
-            if isinstance(self.config["theme"], str):
-                self.theme = self.get_theme_file(self.config["theme"])
-                self.config["theme_name"] = self.config["theme"]
-                self.config["theme"] = self.theme   
+            for key in DEFAULT_CONFIG:
+                if key == "theme":
+                    if isinstance(self.config[key], dict):
+                        self.config[key] = "ghost"
+
+                if key not in self.config:
+                    self.config[key] = DEFAULT_CONFIG[key]
+                
+            json.dump(self.config, open("config.json", "w"), indent=4)
 
         if self.get("token") == "":
             console.print_error("No token found, please set it below.")
