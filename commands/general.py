@@ -25,67 +25,56 @@ class General(commands.Cog):
             cog = self.bot.get_cog(cog_name)
 
             if cog.description is not None:
-                desc = cog.description.split("\n")[0]
-                cmd_name = cog.description.split("\n")[1]
+                cog_desc = cog.description.split("\n")
 
-                if cog_name.lower() != "general":
-                    cmds.append({"name": cmd_name, "description": desc})
+                try:
+                    cmds.append({
+                        "name": cog_desc[1].lower(),
+                        "description": cog_desc[0]
+                    })
+                except:
+                    pass
 
         cmds = sorted(cmds, key=lambda k: len(k["name"]))
 
         for cmd in cmds:
-            if cfg.get("message_settings")["style"] == "codeblock":
+            if cmd["name"] == "help":
+                continue
+            elif cfg.get("message_settings")["style"] == "codeblock":
                 description += f"{cmd['name']} :: {cmd['description']}\n"
             else:
                 description += f"{self.bot.command_prefix}**{cmd['name']}** {cmd['description']}\n"
 
         if command is None:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                msg = codeblock.Codeblock(f"{cfg.get('theme')['emoji']} {cfg.get('theme')['title']}", description)
-
-                await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title=cfg.get('theme')['title'], description=f"{description}\nThere are **{len(self.bot.commands)}** commands!", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed.set_thumbnail(url=cfg.get("theme")["image"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Help",
+                "description": description + f"\nThere are **{len(self.bot.commands)}** commands!",
+                "codeblock_desc": description
+            }, extra_title=f"{len(self.bot.commands)} total commands")
 
         else:
             cmd_obj = self.bot.get_command(command)
             if cmd_obj is None:
-                if cfg.get("message_settings")["style"] == "codeblock":
-                    await ctx.send(codeblock.Codeblock(title=f"help", description=f"Command not found.", extra_title=command), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-                else:
-                    embed = imgembed.Embed(title=f"Help", description=f"That command wasn't found.", colour=cfg.get("theme")["colour"])
-                    embed.set_footer(text=cfg.get("theme")["footer"])
-                    embed_file = embed.save()
-
-                    await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                    os.remove(embed_file)
+                await cmdhelper.send_message(ctx, {
+                    "title": "Error",
+                    "description": "That command wasn't found.",
+                    "colour": "#ff0000"
+                })
 
             else:
+                info = {
+                    "name": cmd_obj.name,
+                    "description": cmd_obj.description,
+                    "usage": cmd_obj.usage
+                }
 
-                if cfg.get("message_settings")["style"] == "codeblock":
-                    msg = codeblock.Codeblock(f"help", f"""Name        :: {cmd_obj.name}
-Description :: {cmd_obj.description}
-Usage       :: {cmd_obj.usage}""")
+                longest_key = max([len(key) for key in info.keys()])
 
-                    await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-                else:
-                    embed = imgembed.Embed(title="Help", description=f"""**Name:** {cmd_obj.name}
-**Description:** {cmd_obj.description}
-**Usage:** {cmd_obj.usage}""", colour=cfg.get("theme")["colour"])
-                    embed.set_footer(text=cfg.get("theme")["footer"])
-                    embed_file = embed.save()
-
-                    await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                    os.remove(embed_file)
+                await cmdhelper.send_message(ctx, {
+                    "title": "Help",
+                    "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+                    "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()])
+                })
 
     @commands.command()
     async def ping(self, ctx):
@@ -131,30 +120,19 @@ Usage       :: {cmd_obj.usage}""")
             pages.append(commands_str)
         
         if len(pages) == 0:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                msg = codeblock.Codeblock(title=f"search", description=f"No results found.", extra_title=query)
-                await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title="Search", description=f"No results found for **{query}**.", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Search",
+                "description": f"No results found for **{query}**.",
+                "colour": "#ff0000"
+            })
 
         else:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                msg = codeblock.Codeblock(title=f"search", description=pages[selected_page - 1], extra_title=f"Page {selected_page}/{len(pages)}")
-                await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title="Search", description=pages[selected_page - 1], colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=f"Page {selected_page}/{len(pages)}")
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Search",
+                "description": pages[selected_page - 1],
+                "codeblock_desc": pages[selected_page - 1],
+                "footer": f"Page {selected_page}/{len(pages)}"
+            }, extra_title=f"Page {selected_page}/{len(pages)}")
 
     @commands.command(name="scripts", description="List all scripts.", usage="")
     async def scripts_cmd(self, ctx, selected_page: int = 1):
@@ -162,17 +140,11 @@ Usage       :: {cmd_obj.usage}""")
         scripts_list = scripts.get_scripts()
 
         if len(scripts_list) == 0:
-            if cfg.get("message_settings")["style"] == "codeblock":
-                msg = codeblock.Codeblock(title=f"scripts", description=f"No scripts found.")
-                await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title="Scripts", description=f"No scripts found.", colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=cfg.get("theme")["footer"])
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Scripts",
+                "description": "No scripts found.",
+                "colour": "#ff0000"
+            })
 
         else:
             pages = []
@@ -204,17 +176,12 @@ Usage       :: {cmd_obj.usage}""")
             if len(scripts_str) > 0:
                 pages.append(scripts_str)
 
-            if cfg.get("message_settings")["style"] == "codeblock":
-                msg = codeblock.Codeblock(title=f"scripts", description=pages[selected_page - 1], extra_title=f"Page {selected_page}/{len(pages)}")
-                await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-            else:
-                embed = imgembed.Embed(title="Scripts", description=pages[selected_page - 1], colour=cfg.get("theme")["colour"])
-                embed.set_footer(text=f"Page {selected_page}/{len(pages)}")
-                embed_file = embed.save()
-
-                await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-                os.remove(embed_file)
+            await cmdhelper.send_message(ctx, {
+                "title": "Scripts",
+                "description": pages[selected_page - 1],
+                "codeblock_desc": pages[selected_page - 1],
+                "footer": f"Page {selected_page}/{len(pages)}"
+            }, extra_title=f"Page {selected_page}/{len(pages)}")
 
 def setup(bot):
     bot.add_cog(General(bot))
