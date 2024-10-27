@@ -100,6 +100,10 @@ class Fun(commands.Cog):
         embed = discord.Embed(title=f"{user.name}'s pp size", description=f"{user.name} has a {inches} pp.\n{penis}")
         await cmdhelper.send_message(ctx, embed.to_dict())
 
+    @commands.command(name="rps", descriptiion="Play rock paper scissors", usage="")
+    async def rps(self, ctx):
+        await ctx.send(f"Computer choses `{random.choice(['rock', 'paper', 'scissors'])}`")
+
     @commands.command(name="blocksend", description="Send a message to a blocked user.", usage="[user] [message]")
     async def blocksend(self, ctx, user: discord.User, *, message: str):
         await user.unblock()
