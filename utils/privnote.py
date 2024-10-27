@@ -1,3 +1,5 @@
+import os
+import json
 import requests
 import base64
 import hashlib
@@ -65,7 +67,8 @@ class Privnote:
         self.session = requests.Session()
         self.session.headers.update(self.headers)
         self.scraper = cfscrape.create_scraper(sess=self.session)
-    
+        self.saves = json.load(open("data/privnote_saves.json", "r"))
+
     def decrypt(self, data, password):
         return self.aes.dec(data, password)
 
@@ -85,6 +88,14 @@ class Privnote:
             decrypted = self.decrypt(encyrpted, password)
             return True, decrypted.decode("utf-8")
     
+    def save(self, note, link):
+        code = link.split("privnote.com/")[1].split(" ")[0].split("#")[0]
+        self.saves[code] = {"note": note, "link": link}
+        json.dump(self.saves, open("data/privnote_saves.json", "w"), indent=4)
+
+    def read_already(self, code):
+        return code in self.saves
+
 if __name__ == "__main__":
     privnote = Privnote()
     link = input("Enter the privnote link: ")
