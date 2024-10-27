@@ -189,77 +189,20 @@ class Config:
 
     def get_themes(self):
         return [file.split(".")[0] for file in os.listdir("themes/")]
-    
-    def add_nitro_snipe(self, code):
-        if self.check_sniped_code(code):
-            return False
-
-        with open("data/sniped_codes.txt", "a") as f:
-            f.write(f"{code}\n")
-
-        return True
-
-    def get_sniped_codes(self):
-        with open("data/sniped_codes.txt", "r") as f:
-            return f.read().splitlines()
-        
-    def remove_sniped_code(self, code):
-        codes = self.get_sniped_codes()
-        codes.remove(code)
-        
-        with open("data/sniped_codes.txt", "w") as f:
-            f.write("\n".join(codes))
 
     def get_sniper(self, sniper):
-        return Sniper(**self.config["snipers"][sniper])
-
-    def check_sniped_code(self, code):
-        return code in self.get_sniped_codes()
+        if sniper not in self.config["snipers"]:
+            return None
+        
+        obj = self.config["snipers"].get(sniper)
+        obj["name"] = sniper
+        return Sniper(**obj)
     
     def get_snipers(self):
-        return self.config["snipers"]
-    
-    def get_sniper_status(self, sniper):
-        return self.config["snipers"][sniper]["enabled"]
-    
-    def enable_sniper(self, sniper):
-        self.config["snipers"][sniper]["enabled"] = True
-        self.save()
+        snipers = []
+        for sniper in self.config["snipers"]:
+            obj = self.config["snipers"][sniper]
+            obj["name"] = sniper
+            snipers.append(Sniper(**obj))
 
-        return self.config["snipers"][sniper]["enabled"]
-
-    def disable_sniper(self, sniper):
-        self.config["snipers"][sniper]["enabled"] = False
-        self.save()
-
-        return self.config["snipers"][sniper]["enabled"]
-
-    def toggle_sniper(self, sniper):
-        self.config["snipers"][sniper]["enabled"] = not self.config["snipers"][sniper]["enabled"]
-        self.save()
-        return self.config["snipers"][sniper]["enabled"]
-
-    def snipers_ignore_invalid(self, sniper):
-        return self.config["snipers"][sniper]["ignore_invalid"]
-    
-    def toggle_snipers_ignore_invalid(self, sniper):
-        self.config["snipers"][sniper]["ignore_invalid"] = not self.config["snipers"][sniper]["ignore_invalid"]
-        self.save()
-        return self.config["snipers"][sniper]["ignore_invalid"]
-    
-    def save_privnote(self, link, note):
-        code = link.split("privnote.com/")[1].split(" ")[0].split("#")[0]
-        privnote_saves = json.load(open("data/privnote_saves.json"))
-        privnote_saves[code] = {
-            "link": link,
-            "note": note
-        }
-
-        json.dump(privnote_saves, open("data/privnote_saves.json", "w"), indent=4)
-
-    def check_privnote_save(self, code):
-        privnote_saves = json.load(open("data/privnote_saves.json"))
-        return code in privnote_saves
-    
-    def get_webhook(self, webhook):
-        return self.config["snipers"][webhook]["webhook"]
+        return snipers

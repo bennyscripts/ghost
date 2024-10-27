@@ -68,7 +68,7 @@ class NitroSniper(commands.Cog):
             
             if valid is False:
                 if sniper.ignore_invalid:
-                    return
+                    return await self.save_code(code)
                 
                 console.print_sniper("Nitro", f"Failed to validate nitro gift", {
                     "Code": code,
@@ -82,20 +82,18 @@ class NitroSniper(commands.Cog):
                 snipe_delta = (snipe_time - sent_time) * 1000
                 subscription_plan = "N/A"
 
-                if "redeemed already" in str(resp).lower():
-                    try:
-                        subscription_plan = resp["subscription_plan"]["name"]
-                    except:
-                        subscription_plan = "N/A"
+                try:
+                    subscription_plan = resp["subscription_plan"]["name"]
+                except:
+                    subscription_plan = "N/A"
 
-                    if sniper.ignore_invalid:
-                        return
-                    
-                    console.print_sniper("Nitro", "Failed to claim nitro gift", {
-                        "Code": code,
-                        "Error": resp,
-                        "Hint": "You can hide this message in config.json"
-                    }, success=False)
+                if "redeemed already" in str(resp).lower() or "unknown gift code" in str(resp).lower():
+                    if not sniper.ignore_invalid:                    
+                        console.print_sniper("Nitro", "Failed to claim nitro gift", {
+                            "Code": code,
+                            "Error": resp["message"],
+                            "Hint": "You can hide this message in config.json"
+                        }, success=False)
 
                 else:
                     console.print_sniper("Nitro", "Failed to claim nitro." if not success else "Successfully claimed nitro code!", {
