@@ -66,6 +66,29 @@ class Mod(commands.Cog):
             "description": f"Purged {len(delete)} messages."
         })
 
+    @commands.command(name="dumpchat", description="Get the chats history.", usage="[message count]")
+    async def dumpchat(self, ctx, count: int):
+        messages = [message async for message in ctx.channel.history(limit=count)]
+        dump = "\n".join([f"{str(message.created_at).split('.')[0]}|{message.author.id}|{message.author.name} : {message.content}" for message in messages])
+
+        with open(f"data/{ctx.channel.id}-dump.txt", "w") as f:
+            f.write(dump)
+
+        await ctx.send(file=discord.File(f"data/{ctx.channel.id}-dump.txt"))
+
+    @commands.command(name="firstmessage", description="Get the first message in the chat.", usage="")
+    async def firstmessage(self, ctx):
+        waiting = await ctx.send("> Fetching first message...")
+
+        messages = [message async for message in ctx.channel.history(limit=100000000000)]
+        message = messages[-1]
+
+        await waiting.delete()
+        await cmdhelper.send_message(ctx, {
+            "title": "First Message",
+            "description": f"{message.author.name}: {message.content}"
+        })
+
     @commands.command(name="lock", description="Lock the channel.", usage="")
     async def lock(self, ctx):
         if not ctx.message.author.guild_permissions.manage_channels:
