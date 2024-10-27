@@ -221,5 +221,21 @@ class Info(commands.Cog):
             "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()])
         })
 
+    @commands.command(name="bitcoin", description="Get the current data on Bitcoin.", aliases=["btc"])
+    async def bitcoin(self, ctx):
+        await self.crypto(ctx, "bitcoin")
+
+    @commands.command(name="ethereum", description="Get the current data on Ethereum.", aliases=["eth"])
+    async def ethereum(self, ctx):
+        await self.crypto(ctx, "ethereum")
+
+    @commands.command(name="tether", description="Get the current data on Tether.", aliases=["usdt"])
+    async def tether(self, ctx):
+        await self.crypto(ctx, "tether")
+
+    @commands.command(name="dogecoin", description="Get the current data on Dogecoin.", aliases=["doge"])
+    async def dogecoin(self, ctx):
+        await self.crypto(ctx, "dogecoin")
+
 def setup(bot):
     bot.add_cog(Info(bot))
