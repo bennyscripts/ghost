@@ -72,6 +72,16 @@ class Abuse(commands.Cog):
                 await ctx.guild.create_text_channel(name="Nuked by " + ctx.author.name)
                 await asyncio.sleep(.25)
 
+    @commands.command(name="channelflood", description="Flood guild with a crap ton of channels.", usage="[channel name]")
+    async def channelflood(self, ctx, channel_name: str = "random"):
+        if ctx.author.guild_permissions.administrator:
+            for _ in range(250):
+                if channel_name == "random":
+                    channel_name = str(random.randint(100000000000000000, 999999999999999999))
+
+                await ctx.guild.create_text_channel(name=channel_name)
+                await asyncio.sleep(.25)
+
     @commands.command(name="channelspam", description="Flood a channel with a message of your choosing.", usage="[msg amount] [message]")
     async def channelspam(self, ctx, msg_amount: int, *, message: str):
         for _ in range(msg_amount):
