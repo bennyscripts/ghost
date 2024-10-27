@@ -187,5 +187,39 @@ class Info(commands.Cog):
             "description": "\n".join(channels) if channels else "There were no hidden channels found."
         })
 
+    @commands.command(name="crypto", description="Lookup current data on a cryptocurrency.", usage="[cryptocurrency]")
+    async def crypto(self, ctx, currency):
+        resp = requests.get(f"https://api.coingecko.com/api/v3/coins/{currency}")
+
+        if resp.status_code == 404:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "Invalid cryptocurrency."
+            })
+            return
+        
+        data = resp.json()
+        info = {
+            "Name": currency,
+            "Price": f"${data['market_data']['current_price']['usd']}",
+            "High 24h": f"${data['market_data']['high_24h']['usd']}",
+            "Low 24h": f"${data['market_data']['low_24h']['usd']}",
+            "Market Cap": f"${data['market_data']['market_cap']['usd']}",
+            "Total Volume": f"${data['market_data']['total_volume']['usd']}",
+            "Market Cap Rank": data['market_cap_rank'],
+            "All Time High": f"${data['market_data']['ath']['usd']}",
+            "All Time Low": f"${data['market_data']['atl']['usd']}",
+            "Circulating Supply": f"{data['market_data']['circulating_supply']} {currency}",
+            "Total Supply": f"{data['market_data']['total_supply']} {currency}"
+        }
+
+        longest_key = max([len(key) for key in info.keys()])
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Crypto Info",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()])
+        })
+
 def setup(bot):
     bot.add_cog(Info(bot))
