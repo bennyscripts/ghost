@@ -83,33 +83,31 @@ class Account(commands.Cog):
             await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid status. Please choose from Online, Idle, DND and Invisible.", "colour": "ff0000"})
             return
         
-        resp = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=self.headers, json={"status": statuses[status]})
-
-        if resp.status_code != 200:
-            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change status.", "colour": "ff0000"})
-            return
-        
+        await self.bot.change_presence(status=discord.Status.try_value(status))
         await cmdhelper.send_message(ctx, {"title": "Status", "description": f"Changed status to {status}."})
 
     @commands.command(name="customstatus", description="Change your custom status.", usage="[status]", aliases=["changecustomstatus"])
     async def customstatus(self, ctx, *, status: str):
-        resp = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=self.headers, json={"custom_status": {"text": status}})
-
-        if resp.status_code != 200:
-            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change custom status.", "colour": "ff0000"})
-            return
-        
+        status = discord.CustomActivity(name=status)
+        await self.bot.change_presence(activity=status)
         await cmdhelper.send_message(ctx, {"title": "Custom Status", "description": f"Changed custom status to {status}."})
 
     @commands.command(name="clearstatus", description="Clear your custom status.", usage="")
     async def clearstatus(self, ctx):
-        resp = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=self.headers, json={"custom_status": None})
+        await self.bot.change_presence(activity=None)
+        await cmdhelper.send_message(ctx, {"title": "Clear Status", "description": "Cleared custom status."})
 
-        if resp.status_code != 200:
-            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to clear custom status.", "colour": "ff0000"})
-            return
-        
-        await cmdhelper.send_message(ctx, {"title": "Clear Custom Status", "description": f"Cleared custom status."})
+    @commands.command(name="playing", description="Change your playing status.", usage="[status]", aliases=["changeplaying"])
+    async def playing(self, ctx, *, status: str):
+        game = discord.Game(status)
+        await self.bot.change_presence(activity=game)
+        await cmdhelper.send_message(ctx, {"title": "Playing Status", "description": f"Changed playing status to {status}."})
+
+    @commands.command(name="streaming", description="Change your streaming status.", usage="[status]", aliases=["changestreaming"])
+    async def streaming(self, ctx, *, status: str):
+        stream = discord.Streaming(name=status, url="https://twitch.tv/ghost")
+        await self.bot.change_presence(activity=stream)
+        await cmdhelper.send_message(ctx, {"title": "Streaming Status", "description": f"Changed streaming status to {status}."})
 
     @commands.command(name="backups", description="List your backups.", usage="")
     async def backups(self, ctx):
