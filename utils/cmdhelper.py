@@ -64,7 +64,7 @@ def generate_help_pages(bot, cog):
 
     return {"codeblock": pages_2, "image": pages}
 
-async def send_message(ctx, embed_obj: dict, extra_title="", extra_message=""):
+async def send_message(ctx, embed_obj: dict, extra_title="", extra_message="", delete_after=None):
     cfg = config.Config()
     title = embed_obj.get("title", cfg.get("theme")["title"])
     description = embed_obj.get("description", "")
@@ -72,23 +72,25 @@ async def send_message(ctx, embed_obj: dict, extra_title="", extra_message=""):
     footer = embed_obj.get("footer", cfg.get("theme")["footer"])
     thumbnail = embed_obj.get("thumbnail", cfg.get("theme")["image"])
     codeblock_desc = embed_obj.get("codeblock_desc", description)
+    if delete_after is None:
+        delete_after = cfg.get("message_settings")["auto_delete_delay"]
 
     if cfg.get("message_settings")["style"] == "codeblock":
         description = description.replace("*", "")
         description = description.replace("`", "")
 
-        msg = await ctx.send(str(codeblock.Codeblock(title=title, description=codeblock_desc, extra_title=extra_title)), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        msg = await ctx.send(str(codeblock.Codeblock(title=title, description=codeblock_desc, extra_title=extra_title)), delete_after=delete_after)
     elif cfg.get("message_settings")["style"] == "image":
         embed2 = imgembed.Embed(title=title, description=description, colour=colour)
         embed2.set_footer(text=footer)
         embed2.set_thumbnail(url=thumbnail)
         embed_file = embed2.save()
         
-        msg = await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        msg = await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=delete_after)
         os.remove(embed_file)
     
     if extra_message != "":
-        extra_msg = await ctx.send(extra_message, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        extra_msg = await ctx.send(extra_message, delete_after=delete_after)
         return msg, extra_msg
     
     return msg
