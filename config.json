@@ -7,6 +7,16 @@
         "style": "image"
     },
     "theme": "ghost",
+    "snipers": {
+        "nitro": {
+            "enabled": true,
+            "ignore_invalid": false
+        },
+        "privnote": {
+            "enabled": true,
+            "ignore_invalid": false
+        }
+    },
     "apis": {
         "serpapi": ""
     }
