@@ -305,6 +305,26 @@ Address       :: {address}
         r = requests.get("https://www.yomama-jokes.com/api/v1/jokes/random/")
         joke = r.json()["joke"]
         await ctx.send(joke)
+        
+    @commands.command(name="8ball", description="Ask the magic 8ball a question.", usage="[question]", aliases=["magic8ball", "ask8ball"])
+    async def eightball(self, ctx, *, question: str):
+        responses = ["It is certain", "It is decidedly so", "Without a doubt", "Yes definitely", "You may rely on it",
+            "As I see it, yes", "Most likely", "Outlook good", "Yes", "Signs point to yes", "Reply hazy try again",
+            "Ask again later", "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
+            "Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful"]
+
+        await cmdhelper.send_message(ctx, {
+            "title": question,
+            "description": random.choice(responses)
+        })
+
+    @commands.command(name="fakenitro", description="Fake a nitro gift.", usage="")
+    async def fakenitro(self, ctx):
+        await ctx.send("https://discord.gift/" + "".join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=16)))
+
+    @commands.command(name="hyperlink", description="Create a hyperlink", usage="[link] [text]", aliases=["hyperl"])
+    async def hyperlink(self, ctx, link: str, *, text: str):
+        await ctx.send(f"[{text}]({link})")
 
     @commands.command(name="playsound", description="Play a 5 second sound.", usage="[mp3_url]")
     async def playsound(self, ctx, mp3_url):
