@@ -2,6 +2,7 @@ import json
 import os
 
 from . import console
+from . import webhook as webhook_client
 
 MOTD = "the sniper update"
 VERSION = "3.2.0"
@@ -10,19 +11,21 @@ DEFAULT_CONFIG = {
     "token": "",
     "prefix": "",
     "rich_presence": True,
+    "theme": "ghost",
     "message_settings": {
         "auto_delete_delay": 15,
         "style": "image"
     },
-    "theme": "ghost",
     "snipers": {
         "nitro": {
             "enabled": True,
-            "ignore_invalid": False
+            "ignore_invalid": False,
+            "webhook": ""
         },
         "privnote": {
             "enabled": True,
-            "ignore_invalid": False
+            "ignore_invalid": False,
+            "webhook": ""
         }
     },
     "apis": {
@@ -37,6 +40,52 @@ DEFAULT_THEME = {
     "footer": "ghost.cool",
     "style": "image"
 }
+
+class Sniper:
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name")
+        self.enabled = kwargs.get("enabled")
+        self.ignore_invalid = kwargs.get("ignore_invalid")
+        self.webhook = kwargs.get("webhook")
+        self.config = Config()
+
+    def save(self):
+        self.config.config["snipers"][self.name] = {
+            "enabled": self.enabled,
+            "ignore_invalid": self.ignore_invalid,
+            "webhook": self.webhook
+        }
+        self.config.save()
+
+    def __str__(self):
+        return self.name
+    
+    def get_webhook(self):
+        return webhook_client.Webhook.from_url(self.webhook)
+    
+    def set_webhook(self, webhook):
+        self.webhook = webhook.url
+        self.save()
+
+    def enable(self):
+        self.enabled = True
+        self.save()
+
+    def disable(self):
+        self.enabled = False
+        self.save()
+
+    def toggle(self):
+        self.enabled = not self.enabled
+        self.save()
+        
+    def ignore_invalid(self):
+        self.ignore_invalid = True
+        self.save()
+
+    def toggle_ignore_invalid(self):
+        self.ignore_invalid = not self.ignore_invalid
+        self.save()
 
 class Config:
     def __init__(self) -> None:
@@ -161,6 +210,9 @@ class Config:
         with open("data/sniped_codes.txt", "w") as f:
             f.write("\n".join(codes))
 
+    def get_sniper(self, sniper):
+        return Sniper(**self.config["snipers"][sniper])
+
     def check_sniped_code(self, code):
         return code in self.get_sniped_codes()
     
@@ -206,7 +258,8 @@ class Config:
         json.dump(privnote_saves, open("data/privnote_saves.json", "w"), indent=4)
 
     def check_privnote_save(self, code):
-        if code in self.get_privnote_saves():
-            return True
-        
-        return False
+        privnote_saves = json.load(open("data/privnote_saves.json"))
+        return code in privnote_saves
+    
+    def get_webhook(self, webhook):
+        return self.config["snipers"][webhook]["webhook"]
