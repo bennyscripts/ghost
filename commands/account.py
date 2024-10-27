@@ -48,67 +48,6 @@ class Account(commands.Cog):
             await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
             os.remove(embed_file)
 
-    @commands.command(name="hypesquad", description="Change your hypesquad.", usage="[hypesquad]", aliases=["changehypesquad"])
-    async def hypesquad(self, ctx, house: str):
-        houses = {
-            "bravery": "1",
-            "brilliance": "2",
-            "balance": "3"
-        }
-        house = house.lower()
-
-        if house not in houses:
-            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid house. Please choose from Bravery, Brilliance and Balance.", "colour": "ff0000"})
-            return
-        
-        resp = requests.post("https://discord.com/api/v9/hypesquad/online", headers=self.headers, json={"house_id": houses[house]})
-
-        if resp.status_code != 204:
-            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change hypesquad. {resp.status_code} {resp.text}", "colour": "ff0000"})
-            return
-        
-        await cmdhelper.send_message(ctx, {"title": "Hypesquad", "description": f"Changed hypesquad to {house}."})
-
-    @commands.command(name="status", description="Change your status.", usage="[status]", aliases=["changestatus"])
-    async def status(self, ctx, status: str):
-        statuses = {
-            "online": "online",
-            "idle": "idle",
-            "dnd": "dnd",
-            "invisible": "invisible"
-        }
-        status = status.lower()
-
-        if status not in statuses:
-            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid status. Please choose from Online, Idle, DND and Invisible.", "colour": "ff0000"})
-            return
-        
-        await self.bot.change_presence(status=discord.Status.try_value(status))
-        await cmdhelper.send_message(ctx, {"title": "Status", "description": f"Changed status to {status}."})
-
-    @commands.command(name="customstatus", description="Change your custom status.", usage="[status]", aliases=["changecustomstatus"])
-    async def customstatus(self, ctx, *, status: str):
-        status = discord.CustomActivity(name=status)
-        await self.bot.change_presence(activity=status)
-        await cmdhelper.send_message(ctx, {"title": "Custom Status", "description": f"Changed custom status to {status}."})
-
-    @commands.command(name="clearstatus", description="Clear your custom status.", usage="")
-    async def clearstatus(self, ctx):
-        await self.bot.change_presence(activity=None)
-        await cmdhelper.send_message(ctx, {"title": "Clear Status", "description": "Cleared custom status."})
-
-    @commands.command(name="playing", description="Change your playing status.", usage="[status]", aliases=["changeplaying"])
-    async def playing(self, ctx, *, status: str):
-        game = discord.Game(status)
-        await self.bot.change_presence(activity=game)
-        await cmdhelper.send_message(ctx, {"title": "Playing Status", "description": f"Changed playing status to {status}."})
-
-    @commands.command(name="streaming", description="Change your streaming status.", usage="[status]", aliases=["changestreaming"])
-    async def streaming(self, ctx, *, status: str):
-        stream = discord.Streaming(name=status, url="https://twitch.tv/ghost")
-        await self.bot.change_presence(activity=stream)
-        await cmdhelper.send_message(ctx, {"title": "Streaming Status", "description": f"Changed streaming status to {status}."})
-
     @commands.command(name="backups", description="List your backups.", usage="")
     async def backups(self, ctx):
         if not os.path.exists("backups/"):
@@ -282,6 +221,93 @@ class Account(commands.Cog):
 
         else:
             await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Unknown backup type {backup['type']}. Ghost backup restore only supports backups made using Ghost.", "colour": "ff0000"})
+
+    @commands.command(name="hypesquad", description="Change your hypesquad.", usage="[hypesquad]", aliases=["changehypesquad"])
+    async def hypesquad(self, ctx, house: str):
+        houses = {
+            "bravery": "1",
+            "brilliance": "2",
+            "balance": "3"
+        }
+        house = house.lower()
+
+        if house not in houses:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid house. Please choose from Bravery, Brilliance and Balance.", "colour": "ff0000"})
+            return
+        
+        resp = requests.post("https://discord.com/api/v9/hypesquad/online", headers=self.headers, json={"house_id": houses[house]})
+
+        if resp.status_code != 204:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change hypesquad. {resp.status_code} {resp.text}", "colour": "ff0000"})
+            return
+        
+        await cmdhelper.send_message(ctx, {"title": "Hypesquad", "description": f"Changed hypesquad to {house}."})
+
+    @commands.command(name="status", description="Change your status.", usage="[status]", aliases=["changestatus"])
+    async def status(self, ctx, status: str):
+        statuses = {
+            "online": "online",
+            "idle": "idle",
+            "dnd": "dnd",
+            "invisible": "invisible"
+        }
+        status = status.lower()
+
+        if status not in statuses:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid status. Please choose from Online, Idle, DND and Invisible.", "colour": "ff0000"})
+            return
+        
+        await self.bot.change_presence(status=discord.Status.try_value(status))
+        await cmdhelper.send_message(ctx, {"title": "Status", "description": f"Changed status to {status}."})
+
+    @commands.command(name="customstatus", description="Change your custom status.", usage="[status]", aliases=["changecustomstatus"])
+    async def customstatus(self, ctx, *, status: str):
+        status = discord.CustomActivity(name=status)
+        await self.bot.change_presence(activity=status)
+        await cmdhelper.send_message(ctx, {"title": "Custom Status", "description": f"Changed custom status to {status}."})
+
+    @commands.command(name="clearstatus", description="Clear your custom status.", usage="")
+    async def clearstatus(self, ctx):
+        await self.bot.change_presence(activity=None)
+        await cmdhelper.send_message(ctx, {"title": "Clear Status", "description": "Cleared custom status."})
+
+    @commands.command(name="playing", description="Change your playing status.", usage="[status]", aliases=["changeplaying"])
+    async def playing(self, ctx, *, status: str):
+        game = discord.Game(status)
+        await self.bot.change_presence(activity=game)
+        await cmdhelper.send_message(ctx, {"title": "Playing Status", "description": f"Changed playing status to {status}."})
+
+    @commands.command(name="streaming", description="Change your streaming status.", usage="[status]", aliases=["changestreaming"])
+    async def streaming(self, ctx, *, status: str):
+        stream = discord.Streaming(name=status, url="https://twitch.tv/ghost")
+        await self.bot.change_presence(activity=stream)
+        await cmdhelper.send_message(ctx, {"title": "Streaming Status", "description": f"Changed streaming status to {status}."})
+
+    @commands.command(name="nickname", description="Change your nickname.", usage="[nickname]", aliases=["changenickname", "nick"])
+    async def nickname(self, ctx, *, nickname: str):
+        if ctx.guild is None:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": "You can only change your nickname in a server.", "colour": "ff0000"})
+            return
+        
+        if not ctx.guild.me.guild_permissions.change_nickname:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": "I don't have permission to change nicknames.", "colour": "ff0000"})
+            return
+        
+        await ctx.guild.me.edit(nick=nickname)
+        await cmdhelper.send_message(ctx, {"title": "Nickname", "description": f"Changed nickname to {nickname}."})
+
+    @commands.command(name="clearnickname", description="Clear your nickname.", usage="", aliases=["resetnickname", "clearnick", "resetnick"])
+    async def clearnickname(self, ctx):
+        if ctx.guild is None:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": "You can only change your nickname in a server.", "colour": "ff0000"})
+            return
+        
+        if not ctx.guild.me.guild_permissions.change_nickname:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": "I don't have permission to change nicknames.", "colour": "ff0000"})
+            return
+        
+        await ctx.guild.me.edit(nick=None)
+        await cmdhelper.send_message(ctx, {"title": "Nickname", "description": "Cleared nickname."})
 
 def setup(bot):
     bot.add_cog(Account(bot))
