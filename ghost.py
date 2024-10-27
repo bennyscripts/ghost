@@ -86,6 +86,7 @@ async def on_connect():
     await ghost.add_cog(ghost_commands.Abuse(ghost))
     await ghost.add_cog(ghost_commands.Sniper(ghost))
     await ghost.add_cog(ghost_events.NitroSniper(ghost))
+    await ghost.add_cog(ghost_events.PrivnoteSniper(ghost))
 
     text = f"Logged in as {ghost.user.name}"
     if str(ghost.user.discriminator) != "0":

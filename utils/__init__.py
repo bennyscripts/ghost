@@ -9,3 +9,4 @@ from .notifier import Notifier
 from .scripts import add_script, get_scripts, script_list
 from .shortener import shorten
 from .soundboard import Soundboard, Sound
+from .privnote import Privnote
