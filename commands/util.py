@@ -10,6 +10,7 @@ from utils import config
 from utils import codeblock
 from utils import cmdhelper
 from utils import imgembed
+from utils import console
 
 class Util(commands.Cog):
     def __init__(self, bot):
@@ -188,6 +189,16 @@ command amount :: {command_amount}""")), delete_after=self.cfg.get("message_sett
             f.write("\n".join(commands))
 
         await ctx.send(file=discord.File("data/commands.txt"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+
+    @commands.command(name="clearconsole", description="Clear the console", usage="")
+    async def clearconsole(self, ctx):
+        console.clear()
+        console.print_banner()
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Console",
+            "description": "Console cleared",
+        })
 
 def setup(bot):
     bot.add_cog(Util(bot))
