@@ -64,7 +64,7 @@ def generate_help_pages(bot, cog):
 
     return {"codeblock": pages_2, "image": pages}
 
-async def send_message(ctx, embed_obj: dict, extra_title=""):
+async def send_message(ctx, embed_obj: dict, extra_title="", extra_message=""):
     cfg = config.Config()
     title = embed_obj.get("title", cfg.get("theme")["title"])
     description = embed_obj.get("description", "")
@@ -77,7 +77,7 @@ async def send_message(ctx, embed_obj: dict, extra_title=""):
         description = description.replace("*", "")
         description = description.replace("`", "")
 
-        return await ctx.send(str(codeblock.Codeblock(title=title, description=codeblock_desc, extra_title=extra_title)), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        msg = await ctx.send(str(codeblock.Codeblock(title=title, description=codeblock_desc, extra_title=extra_title)), delete_after=cfg.get("message_settings")["auto_delete_delay"])
     elif cfg.get("message_settings")["style"] == "image":
         embed2 = imgembed.Embed(title=title, description=description, colour=colour)
         embed2.set_footer(text=footer)
@@ -86,5 +86,10 @@ async def send_message(ctx, embed_obj: dict, extra_title=""):
         
         msg = await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
         os.remove(embed_file)
+    
+    if extra_message != "":
+        extra_msg = await ctx.send(extra_message, delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        return msg, extra_msg
+    
+    return msg
 
-        return msg
