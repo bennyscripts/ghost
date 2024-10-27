@@ -1,6 +1,7 @@
 import discord
 import os
 import datetime
+import requests
 
 from discord.ext import commands
 from utils import config
@@ -119,7 +120,7 @@ class Mod(commands.Cog):
             description = ""
 
             for ban in bans:
-                description += f"{ban.user.name}\n"
+                description += f"{ban.user.name}:{ban.user.id}\n"
 
             await cmdhelper.send_message(ctx, {
                 "title": "Banlist",
@@ -150,8 +151,8 @@ class Mod(commands.Cog):
                 "colour": "ff0000"
             })
 
-    @commands.command(name="unban", description="Unban a member from the command server.", usage="[member]")
-    async def unban(self, ctx, member: discord.Member):
+    @commands.command(name="unban", description="Unban a member from the command server.", usage="[id]")
+    async def unban(self, ctx, user_id: int):
         if not ctx.message.author.guild_permissions.ban_members:
             await cmdhelper.send_message(ctx, {
                 "title": "Error",
@@ -159,20 +160,20 @@ class Mod(commands.Cog):
                 "colour": "ff0000"
             })
             return
+        
+        resp = requests.get(f"https://discord.com/api/v9/users/{user_id}", headers={
+            "Authorization": f"{self.cfg.get('token')}",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        })
 
-        try:
-            await member.unban()
-            await cmdhelper.send_message(ctx, {
-                "title": "Unban",
-                "description": f"Unbanned {member.name}"
-            })
-            
-        except Exception as e:
-            await cmdhelper.send_message(ctx, {
-                "title": "Error",
-                "description": f"{e}",
-                "colour": "ff0000"
-            })
+        user = discord.User(state=self.bot._connection, data=resp.json())
+
+        await ctx.guild.unban(user)
+        await cmdhelper.send_message(ctx, {
+            "title": "Unban",
+            "description": f"Unbanned {user.name}"
+        })
 
     @commands.command(name="kick", description="Kick a member from the command server.", usage="[member]")
     async def kick(self, ctx, member: discord.Member):
