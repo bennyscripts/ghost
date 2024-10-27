@@ -13,12 +13,10 @@ class PrivnoteSniper(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.cfg = config.Config()
-        self.cfg.check()
         self.privnote = privnote_client.Privnote()
         self.notifier = notifier.Notifier()
 
     async def validate(self, code):
-        cfg = config.Config()
         full_code = code
         code, password = full_code.split("#")
 
@@ -90,7 +88,7 @@ class PrivnoteSniper(commands.Cog):
                         "Save": code.split("#")[0],
                         "Time": f"{snipe_delta:.2f}ms"
                     })
-
+                    
                     self.notifier.send("Privnote", f"Sniped a privnote. See console for details.")
 
             self.privnote.save(resp, "https://privnote.com/" + code)

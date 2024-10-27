@@ -12,7 +12,6 @@ class NitroSniper(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.cfg = config.Config()
-        self.cfg.check()
         self.notifier = notifier.Notifier()
         self.headers = {
             "Authorization": f"{self.cfg.get('token')}",
