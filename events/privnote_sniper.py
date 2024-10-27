@@ -16,6 +16,27 @@ class PrivnoteSniper(commands.Cog):
         self.privnote = privnote_client.Privnote()
         self.notifier = notifier.Notifier()
 
+    async def send_webhook(self, message, sniper, success, resp):
+        webhook = sniper.get_webhook()
+        embed = discord.Embed(
+            title="Privnote Sniper",
+            colour=0x00ff00 if success else 0xff0000
+        )
+
+        if success is False:
+            if sniper.ignore_invalid:
+                return
+            
+            embed.description = f"Privnote found in {message.channel.mention} by {message.author.mention} failed to validate."
+            embed.add_field(name="Reason", value=f"```{resp}```", inline=True)
+        else:
+            embed.description = f"Successfully read privnote found in {message.channel.mention} sent by {message.author.mention}."
+            embed.add_field(name="Note", value=f"```{resp}```", inline=False)
+            embed.add_field(name="OG Message", value=f"```{message.content}```", inline=False)
+
+        embed.set_thumbnail(url=self.cfg.get("theme")["image"])
+        webhook.send(embed=embed.to_dict())
+
     async def validate(self, code):
         full_code = code
         code, password = full_code.split("#")
@@ -69,7 +90,7 @@ class PrivnoteSniper(commands.Cog):
                 success, resp = await self.claim(code)
 
                 if success is False:
-                    if sniper.ignore_invalid:
+                    if not sniper.ignore_invalid:
                         return
                     
                     console.print_sniper("Privnote", f"Failed to claim privnote", {
@@ -88,10 +109,13 @@ class PrivnoteSniper(commands.Cog):
                         "Save": code.split("#")[0],
                         "Time": f"{snipe_delta:.2f}ms"
                     })
-                    
+
                     self.notifier.send("Privnote", f"Sniped a privnote. See console for details.")
 
-            self.privnote.save(resp, "https://privnote.com/" + code)
+                if sniper.webhook is not None:
+                    await self.send_webhook(message, sniper, success, resp)
+
+                self.privnote.save(resp, "https://privnote.com/" + code)
 
     @commands.Cog.listener()
     async def on_message(self, message):
