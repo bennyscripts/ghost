@@ -77,11 +77,14 @@ class Config:
 
                 if key == "snipers":
                     for sniper in DEFAULT_CONFIG[key]:
+                        if sniper not in self.config[key]:
+                            self.config[key][sniper] = DEFAULT_CONFIG[key][sniper]
+
                         if isinstance(self.config[key][sniper], bool):
                             sniper_enabled = self.config[key][sniper]
                             self.config[key][sniper] = DEFAULT_CONFIG[key][sniper]
                             self.config[key][sniper]["enabled"] = sniper_enabled
-
+                        
                         self.config[key][sniper] = {**DEFAULT_CONFIG[key][sniper], **self.config[key][sniper]}
 
                 if key not in self.config:
