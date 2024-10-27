@@ -45,8 +45,9 @@ class PrivnoteSniper(commands.Cog):
 
     async def snipe(self, message, sent_time):
         cfg = config.Config()
+        sniper = cfg.get_sniper("privnote")
 
-        if cfg.get_sniper_status("privnote") is False:
+        if sniper.enabled is False:
             return
 
         if message.author.id == self.bot.user.id:
@@ -57,7 +58,7 @@ class PrivnoteSniper(commands.Cog):
 
             valid, error = await self.validate(code)
             if valid is False:
-                if cfg.snipers_ignore_invalid("privnote"):
+                if sniper.ignore_invalid:
                     return
                 
                 console.print_sniper("Privnote", f"Failed to validate privnote", {
@@ -70,7 +71,7 @@ class PrivnoteSniper(commands.Cog):
                 success, resp = await self.claim(code)
 
                 if success is False:
-                    if cfg.snipers_ignore_invalid("privnote"):
+                    if sniper.ignore_invalid:
                         return
                     
                     console.print_sniper("Privnote", f"Failed to claim privnote", {
@@ -92,7 +93,7 @@ class PrivnoteSniper(commands.Cog):
 
                     self.notifier.send("Privnote", f"Sniped a privnote. See console for details.")
 
-            cfg.save_privnote("https://privnote.com/" + code, resp)
+            self.privnote.save(resp, "https://privnote.com/" + code)
 
     @commands.Cog.listener()
     async def on_message(self, message):
