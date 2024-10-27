@@ -22,6 +22,15 @@ class Fun(commands.Cog):
         self.cfg = config.Config()
         self.fake = faker.Faker()
         self.description = cmdhelper.cog_desc("fun", "Fun commands")
+        self.morse_code = {
+            "A": ".-", "B": "-...", "C": "-.-.", "D": "-..", "E": ".", "F": "..-.",
+            "G": "--.", "H": "....", "I": "..", "J": ".---", "K": "-.-", "L": ".-..",
+            "M": "--", "N": "-.", "O": "---", "P": ".--.", "Q": "--.-", "R": ".-.",
+            "S": "...", "T": "-", "U": "..-", "V": "...-", "W": ".--", "X": "-..-",
+            "Y": "-.--", "Z": "--..", "1": ".----", "2": "..---", "3": "...--",
+            "4": "....-", "5": ".....", "6": "-....", "7": "--...", "8": "---..",
+            "9": "----.", "0": "-----"
+        }
 
     @commands.command(name="fun", description="Fun commands.", usage="")
     async def fun(self, ctx, selected_page: int = 1):
@@ -126,6 +135,28 @@ class Fun(commands.Cog):
             await msg.edit(content=f"> {reels[0]} {reels[1]} {reels[2]}\n> You won!")
         else:
             await msg.edit(content=f"> {reels[0]} {reels[1]} {reels[2]}\n> You lost!")
+
+    @commands.command(name="encodemorsecode", description="Encode text to morse code.", usage="[text]", aliases=["morsecode"])
+    async def encodemorse(self, ctx, *, text: str):
+        morse = ""
+        for char in text:
+            if char.upper() in self.morse_code:
+                morse += self.morse_code[char.upper()] + " "
+            else:
+                morse += " "
+
+        await ctx.send(morse)
+
+    @commands.command(name="decodemorsecode", description="Decode morse code to text.", usage="[morse]", aliases=["morsecodedecode"])
+    async def decodemorse(self, ctx, *, morse: str):
+        text = ""
+        morse_code = {value: key for key, value in self.morse_code.items()}
+        for char in morse.split(" "):
+            if char in morse_code:
+                text += morse_code[char]
+            else:
+                text += " "
+        await ctx.send(text)
 
     @commands.command(name="blocksend", description="Send a message to a blocked user.", usage="[user] [message]")
     async def blocksend(self, ctx, user: discord.User, *, message: str):
