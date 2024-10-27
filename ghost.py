@@ -83,18 +83,8 @@ for script_file in os.listdir("scripts"):
 
 @ghost.event
 async def on_connect():
-    if discord.__version__ >= "2.0.0":
-        await ghost.add_cog(ghost_commands.Account(ghost))
-        await ghost.add_cog(ghost_commands.Fun(ghost))
-        await ghost.add_cog(ghost_commands.General(ghost))
-        await ghost.add_cog(ghost_commands.Img(ghost))
-        await ghost.add_cog(ghost_commands.Info(ghost))
-        await ghost.add_cog(ghost_commands.Mod(ghost))
-        await ghost.add_cog(ghost_commands.NSFW(ghost))
-        await ghost.add_cog(ghost_commands.Text(ghost))
-        await ghost.add_cog(ghost_commands.Theming(ghost))
-        await ghost.add_cog(ghost_commands.Util(ghost))
-        await ghost.add_cog(ghost_commands.Abuse(ghost))
+    await ghost.add_cog(ghost_commands.Snipers(ghost))
+    await ghost.add_cog(ghost_events.NitroSniper(ghost))
 
     text = f"Logged in as {ghost.user.name}"
     if str(ghost.user.discriminator) != "0":

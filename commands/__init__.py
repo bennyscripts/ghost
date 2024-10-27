@@ -9,3 +9,4 @@ from .text import Text
 from .theming import Theming
 from .util import Util
 from .abuse import Abuse
+from .sniper import Sniper

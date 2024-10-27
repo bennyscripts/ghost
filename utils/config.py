@@ -14,6 +14,12 @@ DEFAULT_CONFIG = {
         "style": "image"
     },
     "theme": "ghost",
+    "snipers": {
+        "nitro": {
+            "enabled": True,
+            "ignore_invalid": False
+        }
+    },
     "apis": {
         "serpapi": ""
     }
@@ -45,6 +51,13 @@ class Config:
     def check(self):
         if not os.path.exists("backups/"):
             os.mkdir("backups/")
+        if not os.path.exists("scripts/"):
+            os.mkdir("scripts/")
+        if not os.path.exists("data/"):
+            os.mkdir("data/")
+        if not os.path.exists("data/sniped_codes.txt"):
+            open("data/sniped_codes.txt", "w").close()
+            
         if not os.path.exists("config.json"):
             json.dump(DEFAULT_CONFIG, open("config.json", "w"), indent=4)
             console.print_info("Created config file")
@@ -61,6 +74,15 @@ class Config:
                 if key == "theme":
                     if isinstance(self.config[key], dict):
                         self.config[key] = "ghost"
+
+                if key == "snipers":
+                    for sniper in DEFAULT_CONFIG[key]:
+                        if isinstance(self.config[key][sniper], bool):
+                            sniper_enabled = self.config[key][sniper]
+                            self.config[key][sniper] = DEFAULT_CONFIG[key][sniper]
+                            self.config[key][sniper]["enabled"] = sniper_enabled
+
+                        self.config[key][sniper] = {**DEFAULT_CONFIG[key][sniper], **self.config[key][sniper]}
 
                 if key not in self.config:
                     self.config[key] = DEFAULT_CONFIG[key]
@@ -91,11 +113,6 @@ class Config:
         return self.config[key]
 
     def set(self, key, value) -> None:
-        if value.lower() == "true":
-            value = True
-        elif value.lower() == "false":
-            value = False
-
         self.config[key] = value
         self.save()
 
@@ -113,3 +130,57 @@ class Config:
 
     def get_themes(self):
         return [file.split(".")[0] for file in os.listdir("themes/")]
+    
+    def add_nitro_snipe(self, code):
+        if self.check_sniped_code(code):
+            return False
+
+        with open("data/sniped_codes.txt", "a") as f:
+            f.write(f"{code}\n")
+
+        return True
+
+    def get_sniped_codes(self):
+        with open("data/sniped_codes.txt", "r") as f:
+            return f.read().splitlines()
+        
+    def remove_sniped_code(self, code):
+        codes = self.get_sniped_codes()
+        codes.remove(code)
+        
+        with open("data/sniped_codes.txt", "w") as f:
+            f.write("\n".join(codes))
+
+    def check_sniped_code(self, code):
+        return code in self.get_sniped_codes()
+    
+    def get_snipers(self):
+        return self.config["snipers"]
+    
+    def get_sniper_status(self, sniper):
+        return self.config["snipers"][sniper]["enabled"]
+    
+    def enable_sniper(self, sniper):
+        self.config["snipers"][sniper]["enabled"] = True
+        self.save()
+
+        return self.config["snipers"][sniper]["enabled"]
+
+    def disable_sniper(self, sniper):
+        self.config["snipers"][sniper]["enabled"] = False
+        self.save()
+
+        return self.config["snipers"][sniper]["enabled"]
+
+    def toggle_sniper(self, sniper):
+        self.config["snipers"][sniper]["enabled"] = not self.config["snipers"][sniper]["enabled"]
+        self.save()
+        return self.config["snipers"][sniper]["enabled"]
+
+    def snipers_ignore_invalid(self, sniper):
+        return self.config["snipers"][sniper]["ignore_invalid"]
+    
+    def toggle_snipers_ignore_invalid(self, sniper):
+        self.config["snipers"][sniper]["ignore_invalid"] = not self.config["snipers"][sniper]["ignore_invalid"]
+        self.save()
+        return self.config["snipers"][sniper]["ignore_invalid"]

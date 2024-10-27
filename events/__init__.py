@@ -1,0 +1,1 @@
+from .nitro_sniper import NitroSniper
