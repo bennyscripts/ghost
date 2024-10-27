@@ -38,6 +38,30 @@ class Info(commands.Cog):
             await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
             os.remove(embed_file)
 
+    @commands.command(name="iplookup", description="Look up an IP address.", usage="[ip]", aliases=["ipinfo"])
+    async def iplookup(self, ctx, ip):
+        response = requests.get(f"https://ipapi.co/{ip}/json/").json()
+
+        info = {
+            "IP": response["ip"],
+            "City": response["city"],
+            "Region": response["region"],
+            "Country": response["country"],
+            "Postal": response["postal"],
+            "Latitude": response["latitude"],
+            "Longitude": response["longitude"],
+            "Timezone": response["timezone"],
+            "Org": response["org"]
+        }
+
+        longest_key = max([len(key) for key in info.keys()])
+
+        await cmdhelper.send_message(ctx, {
+            "title": "IP Lookup",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()])
+        })
+
     @commands.command(name="userinfo", description="Get information about a user.", aliases=["ui"], usage="[user]")
     async def userinfo(self, ctx, user: discord.User = None):
         if user is None: user = ctx.author
@@ -89,6 +113,32 @@ class Info(commands.Cog):
             "codeblock_desc": "\n".join([f"{key}{' ' * (10 - len(key))} :: {value}" for key, value in info.items()]),
             "thumbnail": ctx.guild.icon.url
         })
+
+    @commands.command(name="webhookinfo", description="Get information about a webhook.", aliases=["wi"], usage="[webhook url]")
+    async def webhookinfo(self, ctx, webhook_url):
+        try:
+            webhook = discord.Webhook.from_url(webhook_url, session=self.bot._connection)
+        except:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "Invalid webhook URL.",
+                "colour": "#ff0000"
+            })
+            return
+
+        info = {
+            "ID": webhook.id,
+            "Name": webhook.name,
+            "Channel": webhook.source_channel,
+            "Guild": webhook.source_guild,
+            "Token": "Attached below"
+        }
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Webhook Info",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "thumbnail": ""
+        }, extra_message="```" + webhook.token + "```")
 
     @commands.command(name="avatar", description="Get the avatar of a user.", aliases=["av"], usage="[user]")
     async def avatar(self, ctx, user: discord.User = None):
