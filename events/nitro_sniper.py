@@ -58,8 +58,8 @@ class NitroSniper(commands.Cog):
 
         if "discord.gift/" in message.content:
             code = message.content.split("discord.gift/")[1].split(" ")[0]
-
             valid, error = await self.validate(code)
+            
             if valid is False:
                 if cfg.snipers_ignore_invalid("nitro"):
                     return
