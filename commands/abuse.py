@@ -46,6 +46,32 @@ class Abuse(commands.Cog):
             await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
             os.remove(embed_file)
 
+    @commands.command(name="servernuke", description="Nuke a server.", usage="", aliases=["nukeserver"])
+    async def servernuke(self, ctx):
+        if ctx.author.guild_permissions.administrator:
+            for channel in ctx.guild.channels:
+                try:
+                    await channel.delete()
+                    await asyncio.sleep(.25)
+                except:
+                    pass
+
+            for role in ctx.guild.roles:
+                try:
+                    await role.delete()
+                    await asyncio.sleep(.25)
+                except:
+                    pass
+
+            try:
+                await ctx.guild.edit(name="Nuked by " + ctx.author.name)
+            except:
+                pass
+
+            for _ in range(250):
+                await ctx.guild.create_text_channel(name="Nuked by " + ctx.author.name)
+                await asyncio.sleep(.25)
+
     @commands.command(name="channelspam", description="Flood a channel with a message of your choosing.", usage="[msg amount] [message]")
     async def channelspam(self, ctx, msg_amount: int, *, message: str):
         for _ in range(msg_amount):
