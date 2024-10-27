@@ -18,6 +18,10 @@ DEFAULT_CONFIG = {
         "nitro": {
             "enabled": True,
             "ignore_invalid": False
+        },
+        "privnote": {
+            "enabled": True,
+            "ignore_invalid": False
         }
     },
     "apis": {
@@ -57,6 +61,8 @@ class Config:
             os.mkdir("data/")
         if not os.path.exists("data/sniped_codes.txt"):
             open("data/sniped_codes.txt", "w").close()
+        if not os.path.exists("data/privnote_saves.json"):
+            json.dump({}, open("data/privnote_saves.json", "w"), indent=4)
             
         if not os.path.exists("config.json"):
             json.dump(DEFAULT_CONFIG, open("config.json", "w"), indent=4)
@@ -187,3 +193,19 @@ class Config:
         self.config["snipers"][sniper]["ignore_invalid"] = not self.config["snipers"][sniper]["ignore_invalid"]
         self.save()
         return self.config["snipers"][sniper]["ignore_invalid"]
+    
+    def save_privnote(self, link, note):
+        code = link.split("privnote.com/")[1].split(" ")[0].split("#")[0]
+        privnote_saves = json.load(open("data/privnote_saves.json"))
+        privnote_saves[code] = {
+            "link": link,
+            "note": note
+        }
+
+        json.dump(privnote_saves, open("data/privnote_saves.json", "w"), indent=4)
+
+    def check_privnote_save(self, code):
+        if code in self.get_privnote_saves():
+            return True
+        
+        return False
