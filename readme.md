@@ -1,4 +1,4 @@
-# Ghost
+# Ghost Selfbot
 A rewrite of the popular Discord selfbot, Ghost.    
 Please feel free to create a pull request with commands you've added yourself.  
 
