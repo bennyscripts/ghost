@@ -94,6 +94,8 @@ class NitroSniper(commands.Cog):
                         "Time": f"{snipe_delta:.2f}ms"
                     }, success=success)
 
+                    self.notifier.send("Nitro", f"Sniped a nitro gift. See console for details.")
+
             cfg.add_nitro_snipe(code)
 
     @commands.Cog.listener()
