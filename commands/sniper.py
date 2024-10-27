@@ -40,43 +40,35 @@ class Sniper(commands.Cog):
     async def snipers(self, ctx):
         cfg = config.Config()
         snipers = cfg.get_snipers()
+        snipers_str = "\n".join([f"- {sniper.name.capitalize()}: {'Enabled' if sniper.enabled else 'Disabled'}" for sniper in snipers])
 
         await cmdhelper.send_message(ctx, {
             "title": "Snipers",
-            "description": "\n".join([f"- {sniper.capitalize()}: {'Enabled' if cfg.get_sniper_status(sniper) else 'Disabled'}" for sniper in snipers]),
-            "colour": cfg.get("theme")["colour"]
+            "description": snipers_str
         })
 
     @commands.command(name="sniperstatus", description="Check the status of a sniper.", usage="[sniper]")
-    async def sniperstatus(self, ctx, sniper: str = None):
+    async def sniperstatus(self, ctx, sniper_str: str = None):
         cfg = config.Config()
+        sniper = cfg.get_sniper(sniper_str.lower())
 
         if sniper is None:
             return await cmdhelper.send_message(ctx, {
                 "title": "Error",
-                "description": "Please provide a sniper to check the status of.",
+                "description": "Please provide a sniper to check the status.",
                 "colour": "#ff0000"
             })
-
-        if sniper.lower() not in cfg.get_snipers():
-            return await cmdhelper.send_message(ctx, {
-                "title": "Error",
-                "description": "Invalid sniper, please use `nitro`.",
-                "colour": "#ff0000"
-            })
-
-        sniper_status = cfg.get_sniper_status(sniper.lower())
-        sniper_ignore_invalid = cfg.snipers_ignore_invalid(sniper.lower())
 
         await cmdhelper.send_message(ctx, {
-            "title": f"{sniper.capitalize()} Sniper",
-            "description": f"{sniper.capitalize()} Sniper is currently {'enabled' if sniper_status else 'disabled'}\nIgnore invalid codes: {sniper_ignore_invalid}",
-            "colour": "#00ff00" if sniper_status else "#ff0000"
+            "title": f"{sniper.name.capitalize()} Sniper",
+            "description": f"{sniper.name.capitalize()} Sniper is currently {'enabled' if sniper.enabled else 'disabled'}\nIgnore invalid codes: {sniper.ignore_invalid}",
+            "colour": "#00ff00" if sniper.enabled else "#ff0000"
         })
 
-    @commands.command(name="ignoreinvalidcodes", description="Toggle ignoring invalid codes for a sniper.", usage="[sniper]", aliases=["sniperignore"])
-    async def ignoreinvalidcodes(self, ctx, sniper: str = None):
+    @commands.command(name="ignoreinvalidcodes", description="Toggle ignoring invalid codes for a sniper.", usage="[sniper]", aliases=["sniperignore", "ignoreinvalid"])
+    async def ignoreinvalidcodes(self, ctx, sniper_str: str = None):
         cfg = config.Config()
+        sniper = cfg.get_sniper(sniper_str.lower())
 
         if sniper is None:
             return await cmdhelper.send_message(ctx, {
@@ -84,28 +76,29 @@ class Sniper(commands.Cog):
                 "description": "Please provide a sniper to toggle ignoring invalid codes for.",
                 "colour": "#ff0000"
             })
-
-        if sniper.lower() not in cfg.get_snipers():
-            return await cmdhelper.send_message(ctx, {
-                "title": "Error",
-                "description": "Invalid sniper, please use `nitro`.",
-                "colour": "#ff0000"
-            })
-
-        ignore_state = cfg.toggle_snipers_ignore_invalid(sniper.lower())
-        state = "on" if ignore_state else "off"
+        
+        sniper.toggle_ignore_invalid()
+        ignore_state = sniper.ignore_invalid
 
         await cmdhelper.send_message(ctx, {
-            "title": f"{sniper.capitalize()} Sniper",
-            "description": f"{sniper.capitalize()} Sniper will now be {'ignoring' if ignore_state else 'checking'} invalid codes."
+            "title": f"{sniper.name.capitalize()} Sniper",
+            "description": f"{sniper.name.capitalize()} Sniper will now be {'ignoring' if not ignore_state else 'checking'} invalid codes."
         })
 
     @commands.command(name="nitrosniper", description="Toggle the Nitro sniper.", usage="[on/off]")
     async def nitrosniper(self, ctx, state: str = None):
         cfg = config.Config()
+        sniper = cfg.get_sniper("nitro")
+        sniper_state = sniper.enabled
         
         if state is None:
-            sniper_state = cfg.toggle_sniper("nitro")
+            if sniper.enabled:
+                sniper.disable()
+                sniper_state = False
+            else:
+                sniper.enable()
+                sniper_state = True
+
             state = "on" if sniper_state else "off"
 
         else:
@@ -117,10 +110,10 @@ class Sniper(commands.Cog):
                 })
 
             if state.lower() == "on":
-                cfg.enable_sniper("nitro")
+                sniper.enable()
 
             elif state.lower() == "off":
-                cfg.disable_sniper("nitro")
+                sniper.disable()
 
             else:
                 return await cmdhelper.send_message(ctx, {
@@ -135,7 +128,48 @@ class Sniper(commands.Cog):
             "colour": "#00ff00" if sniper_state else "#ff0000"
         })
 
-        await self.bot.get_cog("Util").restart(ctx)
+    @commands.command(name="privnotesniper", description="Toggle the Privnote sniper.", usage="[on/off]")
+    async def privnotesniper(self, ctx, state: str = None):
+        cfg = config.Config()
+        sniper = cfg.get_sniper("privnote")
+        sniper_state = sniper.enabled
+        
+        if state is None:
+            if sniper.enabled:
+                sniper.disable()
+                sniper_state = False
+            else:
+                sniper.enable()
+                sniper_state = True
+
+            state = "on" if sniper_state else "off"
+
+        else:
+            if state.lower() not in ["on", "off"]:
+                return await cmdhelper.send_message(ctx, {
+                    "title": "Error",
+                    "description": "Invalid state, please use `on` or `off`.",
+                    "colour": "#ff0000"
+                })
+
+            if state.lower() == "on":
+                sniper.enable()
+
+            elif state.lower() == "off":
+                sniper.disable()
+
+            else:
+                return await cmdhelper.send_message(ctx, {
+                    "title": "Error",
+                    "description": "Invalid state, please use `on` or `off`.",
+                    "colour": "#ff0000"
+                })
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Privnote Sniper",
+            "description": f"Privnote sniper has been turned {state}\nGhost will now restart to apply changes.",
+            "colour": "#00ff00" if sniper_state else "#ff0000"
+        })
 
 def setup(bot):
     bot.add_cog(Sniper(bot))
