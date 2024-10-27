@@ -54,13 +54,14 @@ class Mod(commands.Cog):
 
     @commands.command(name="purgechat", description="Purge the entire chat.", usage="")
     async def purgechat(self, ctx):
-        def is_me(m):
-            if ctx.channel.permissions_for(m.author).manage_messages:
-                return True
-            else:
-                return m.author == self.bot.user
+        if not ctx.channel.permissions_for(ctx.author).manage_messages:
+            return await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
 
-        delete = await ctx.channel.purge(check=is_me)
+        delete = await ctx.channel.purge()
         await cmdhelper.send_message(ctx, {
             "title": "Chat Purge",
             "description": f"Purged {len(delete)} messages."
