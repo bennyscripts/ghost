@@ -7,17 +7,19 @@
         "style": "image"
     },
     "theme": "ghost",
+    "apis": {
+        "serpapi": ""
+    },
     "snipers": {
         "nitro": {
             "enabled": true,
-            "ignore_invalid": false
+            "ignore_invalid": false,
+            "webhook": ""
         },
         "privnote": {
             "enabled": true,
-            "ignore_invalid": false
+            "ignore_invalid": false,
+            "webhook": ""
         }
-    },
-    "apis": {
-        "serpapi": ""
     }
 }
