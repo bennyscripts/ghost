@@ -6,3 +6,4 @@ pypresence
 requests
 pillow
 pystyle
+psutil
