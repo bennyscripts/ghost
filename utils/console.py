@@ -74,3 +74,5 @@ def print_sniper(sniper, title, description: dict, success=True):
 
     for key, value in description.items():
         print(f"{' '*10} {colorama.Fore.LIGHTYELLOW_EX}{colorama.Style.NORMAL}{key}: {colorama.Style.RESET_ALL}{value}")
+    
+    print()
