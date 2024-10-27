@@ -42,7 +42,7 @@ def print_banner():
     print(pystyle.Center.XCenter(banner))
     
     print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}")
-    print(pystyle.Center.XCenter(f"epic gamer rewrite of ghost"))
+    print(pystyle.Center.XCenter(config.MOTD))
     print()
     print(f"{colorama.Fore.BLUE}—————————————————————————————————————{copyright_}—————————————————————————————————————")
     print(f"{colorama.Style.RESET_ALL}")

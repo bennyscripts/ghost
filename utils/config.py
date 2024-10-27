@@ -3,6 +3,7 @@ import os
 
 from . import console
 
+MOTD = "the sniper update"
 VERSION = "3.2.0"
 PRODUCTION = True
 DEFAULT_CONFIG = {
