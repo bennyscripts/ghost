@@ -4,8 +4,8 @@ import os
 from . import console
 from . import webhook as webhook_client
 
-MOTD = "the sniper update"
-VERSION = "3.2.0"
+MOTD = "Lobsters pee out of their faces. From right under their eyes".lower()
+VERSION = "3.3.0"
 PRODUCTION = True
 DEFAULT_CONFIG = {
     "token": "",
