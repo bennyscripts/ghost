@@ -19,12 +19,39 @@ class NitroSniper(commands.Cog):
         }
 
     async def save_code(self, code):
+        if await self.check_code(code):
+            return
+        
         with open("data/sniped_codes.txt", "a") as f:
             f.write(f"{code}\n")
 
     async def check_code(self, code):
         with open("data/sniped_codes.txt", "r") as f:
             return code in f.read()
+        
+    async def send_webhook(self, message, sniper, code, success, resp, snipe_delta):
+        webhook = sniper.get_webhook()
+        embed = discord.Embed(
+            title="Nitro Sniper",
+            colour=0x00ff00 if success else 0xff0000
+        )
+
+        if success is False:
+            if sniper.ignore_invalid:
+                return
+            
+            # embed.add_field(name="Error", value=f"```{resp}```", inline=False)
+            embed.description = f"Nitro code found in {message.channel.mention} by {message.author.mention} failed to validate."
+            embed.add_field(name="Reason", value=f"```{resp['message']}```", inline=True)
+        else:
+            embed.description = f"Successfully claimed nitro code found in {message.channel.mention} sent by {message.author.mention}."
+            embed.add_field(name="Time", value=f"```{snipe_delta:.2f}ms```", inline=True)
+            embed.add_field(name="Code", value=f"```{code}```", inline=True)
+            embed.add_field(name="Type", value=f"```{resp['subscription_plan']['name']}```", inline=False)
+            embed.add_field(name="Content", value=f"```{message.content}```", inline=False)
+
+        embed.set_thumbnail(url=self.cfg.get("theme")["image"])
+        webhook.send(embed=embed.to_dict())
 
     async def validate(self, code):
         if await self.check_code(code):
@@ -48,7 +75,7 @@ class NitroSniper(commands.Cog):
         )
 
         if r.status_code == 400:
-            return False, r.json()["message"]
+            return False, r.json()
 
         return True, r.json()
 
@@ -82,10 +109,10 @@ class NitroSniper(commands.Cog):
                 snipe_delta = (snipe_time - sent_time) * 1000
                 subscription_plan = "N/A"
 
-                try:
+                if "subscription_plan" in resp:
                     subscription_plan = resp["subscription_plan"]["name"]
-                except:
-                    subscription_plan = "N/A"
+                else:
+                    resp["subscription_plan"] = {"name": "N/A"}
 
                 if "redeemed already" in str(resp).lower() or "unknown gift code" in str(resp).lower():
                     if not sniper.ignore_invalid:                    
@@ -94,6 +121,8 @@ class NitroSniper(commands.Cog):
                             "Error": resp["message"],
                             "Hint": "You can hide this message in config.json"
                         }, success=False)
+
+                    success=False
 
                 else:
                     console.print_sniper("Nitro", "Failed to claim nitro." if not success else "Successfully claimed nitro code!", {
@@ -104,7 +133,11 @@ class NitroSniper(commands.Cog):
                         "Time": f"{snipe_delta:.2f}ms"
                     }, success=success)
 
-                    self.notifier.send("Nitro", f"Sniped a nitro gift. See console for details.")
+                    if success:
+                        self.notifier.send("Nitro", f"Sniped a nitro gift. See console for details.")
+
+                if sniper.webhook is not None:
+                    await self.send_webhook(message, sniper, code, success, resp, snipe_delta)
 
             await self.save_code(code)
 
