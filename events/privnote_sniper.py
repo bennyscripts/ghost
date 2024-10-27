@@ -22,7 +22,7 @@ class PrivnoteSniper(commands.Cog):
         full_code = code
         code, password = full_code.split("#")
 
-        if cfg.check_privnote_save(code):
+        if self.privnote.read_already(code):
             return False, "Code has already been sniped."
 
         if len(full_code) != 18:
