@@ -309,5 +309,22 @@ class Account(commands.Cog):
         await ctx.guild.me.edit(nick=None)
         await cmdhelper.send_message(ctx, {"title": "Nickname", "description": "Cleared nickname."})
 
+    @commands.command(name="discordtheme", description="Change your discord theme.", usage="[theme]", aliases=["changetheme"])
+    async def discordtheme(self, ctx, theme: str):
+        themes = ["dark", "light"]
+        theme = theme.lower()
+
+        if theme not in themes:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Invalid theme. Please choose from Dark and Light.", "colour": "ff0000"})
+            return
+        
+        resp = requests.patch("https://discord.com/api/v9/users/@me/settings", headers=self.headers, json={"theme": theme})
+
+        if resp.status_code != 200:
+            await cmdhelper.send_message(ctx, {"title": "Error", "description": f"Failed to change theme. {resp.status_code} {resp.text}", "colour": "ff0000"})
+            return
+        
+        await cmdhelper.send_message(ctx, {"title": "Theme", "description": f"Changed theme to {theme}."})
+
 def setup(bot):
     bot.add_cog(Account(bot))
