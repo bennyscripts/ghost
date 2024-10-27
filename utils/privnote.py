@@ -77,7 +77,11 @@ class Privnote:
         code, password = code.split("#")
 
         resp = self.scraper.delete(self.base_url + code, headers=self.headers)
-        data = resp.json()
+        data = None
+        try:
+            data = resp.json()
+        except Exception as e:
+            return False, "Blocked by cloudflare."
         
         if "destroyed" not in data:
             return False, "Invalid privnote link."
