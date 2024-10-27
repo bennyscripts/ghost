@@ -159,5 +159,9 @@ class Text(commands.Cog):
     async def lua(self, ctx, *, lua: str):
         await self.codeblock(ctx, "lua", code=lua)
 
+    @commands.command(name="reverse", description="Reverse your text.", usage="[text]")
+    async def reverse(self, ctx, *, text: str):
+        await ctx.send(text[::-1])
+
 def setup(bot):
     bot.add_cog(Text(bot))
