@@ -168,5 +168,26 @@ command amount :: {command_amount}""")), delete_after=self.cfg.get("message_sett
             "thumbnail": ""
         })
 
+    @commands.command(name="uptime", description="View the bot's uptime", usage="")
+    async def uptime(self, ctx):
+        uptime = psutil.boot_time()
+        uptime = psutil.Process().create_time() - uptime
+        uptime = str(uptime).split(".")[0]
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Uptime",
+            "description": f"{uptime}",
+        })
+
+    @commands.command(name="allcmds", description="List all commands", usage="")
+    async def allcmds(self, ctx):
+        cfg = config.Config()
+        commands = [f"{command.name} {command.usage} : {command.description}" for command in self.bot.commands]
+
+        with open("data/commands.txt", "w") as f:
+            f.write("\n".join(commands))
+
+        await ctx.send(file=discord.File("data/commands.txt"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
+
 def setup(bot):
     bot.add_cog(Util(bot))
