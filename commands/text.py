@@ -110,5 +110,54 @@ class Text(commands.Cog):
             "thumbnail": image
         }, extra_title=footer)
 
+    @commands.command(name="passwordgen", description="Generate a password.", usage="[length]", aliases=["genpassword"])
+    async def passwordgen(self, ctx, length: int = 16):
+        password = "".join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()", k=length))
+        await ctx.send(password)
+
+    @commands.command(name="codeblock", description="Create a codeblock.", usage="[language] [code]", aliases=["block"])
+    async def codeblock(self, ctx, language: str, *, code: str):
+        await ctx.send(f"```{language}\n{code}\n```")
+
+    @commands.command(name="json", description="Create a json codeblock.", usage="[json]", aliases=["jblock"])
+    async def json(self, ctx, *, json: str):
+        await self.codeblock(ctx, "json", code=json)
+
+    @commands.command(name="python", description="Create a python codeblock.", usage="[python]", aliases=["pyblock"])
+    async def python(self, ctx, *, python: str):
+        await self.codeblock(ctx, "python", code=python)
+
+    @commands.command(name="js", description="Create a javascript codeblock.", usage="[javascript]", aliases=["jsblock", "javascript"])
+    async def js(self, ctx, *, js: str):
+        await self.codeblock(ctx, "javascript", code=js)
+
+    @commands.command(name="html", description="Create a html codeblock.", usage="[html]", aliases=["htmlblock"])
+    async def html(self, ctx, *, html: str):
+        await self.codeblock(ctx, "html", code=html)
+
+    @commands.command(name="css", description="Create a css codeblock.", usage="[css]", aliases=["cssblock"])
+    async def css(self, ctx, *, css: str):
+        await self.codeblock(ctx, "css", code=css)
+
+    @commands.command(name="java", description="Create a java codeblock.", usage="[java]", aliases=["javablock"])
+    async def java(self, ctx, *, java: str):
+        await self.codeblock(ctx, "java", code=java)
+
+    @commands.command(name="c", description="Create a c codeblock.", usage="[c]", aliases=["cblock"])
+    async def c(self, ctx, *, c: str):
+        await self.codeblock(ctx, "c", code=c)
+
+    @commands.command(name="cpp", description="Create a cpp codeblock.", usage="[cpp]", aliases=["cppblock"])
+    async def cpp(self, ctx, *, cpp: str):
+        await self.codeblock(ctx, "cpp", code=cpp)
+
+    @commands.command(name="php", description="Create a php codeblock.", usage="[php]", aliases=["phpblock"])
+    async def php(self, ctx, *, php: str):
+        await self.codeblock(ctx, "php", code=php)
+
+    @commands.command(name="lua", description="Create a lua codeblock.", usage="[lua]", aliases=["luablock"])
+    async def lua(self, ctx, *, lua: str):
+        await self.codeblock(ctx, "lua", code=lua)
+
 def setup(bot):
     bot.add_cog(Text(bot))
