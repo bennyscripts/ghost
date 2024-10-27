@@ -104,6 +104,29 @@ class Fun(commands.Cog):
     async def rps(self, ctx):
         await ctx.send(f"Computer choses `{random.choice(['rock', 'paper', 'scissors'])}`")
 
+    @commands.command(name="slots", description="Play a slot machine.", aliases=["slotmachine", "slot"])
+    async def slots(self, ctx):
+        emojis_chances = [("🍒", 0.01), ("🍊", 0.02), ("🍎", 0.06), ("💎", 0.08), ("🍆", 0.14), ("🍉", 0.24), ("🎰", 0.36)]
+        emojis = []
+        reels = ()
+
+        msg = await ctx.send("> Setting up your slot machine...")
+
+        for emoji, chance in emojis_chances:
+            emojis += emoji * int(chance * 100)
+
+        await asyncio.sleep(.75)
+
+        for _ in range(8):
+            reels = (random.choice(emojis), random.choice(emojis), random.choice(emojis))
+            await msg.edit(content=f"> {reels[0]} {reels[1]} {reels[2]}")
+            await asyncio.sleep(0.5)
+
+        if reels[0] == reels[1] == reels[2]:
+            await msg.edit(content=f"> {reels[0]} {reels[1]} {reels[2]}\n> You won!")
+        else:
+            await msg.edit(content=f"> {reels[0]} {reels[1]} {reels[2]}\n> You lost!")
+
     @commands.command(name="blocksend", description="Send a message to a blocked user.", usage="[user] [message]")
     async def blocksend(self, ctx, user: discord.User, *, message: str):
         await user.unblock()
