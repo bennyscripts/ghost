@@ -31,41 +31,42 @@ def print_banner():
 """
     print(colorama.Fore.LIGHTBLUE_EX + colorama.Style.BRIGHT)
 
-    # banner = banner.replace("█", f"{colorama.Fore.WHITE}{colorama.Style.BRIGHT}█{colorama.Style.RESET_ALL}")
-    # banner = banner.replace("╗", f"{colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}╗{colorama.Style.RESET_ALL}")
-    # banner = banner.replace("║", f"{colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}║{colorama.Style.RESET_ALL}")
-    # banner = banner.replace("═", f"{colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}═{colorama.Style.RESET_ALL}")
-    # banner = banner.replace("╝", f"{colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}╝{colorama.Style.RESET_ALL}")
-    # banner = banner.replace("╔", f"{colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}╔{colorama.Style.RESET_ALL}")
-    # banner = banner.replace("╚", f"{colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}╚{colorama.Style.RESET_ALL}")
+    # banner = banner.replace("█", f"{colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}█{colorama.Style.RESET_ALL}")
+    # banner = banner.replace("╗", f"{colorama.Fore.WHITE}{colorama.Style.DIM}╗{colorama.Style.RESET_ALL}")
+    # banner = banner.replace("║", f"{colorama.Fore.WHITE}{colorama.Style.DIM}║{colorama.Style.RESET_ALL}")
+    # banner = banner.replace("═", f"{colorama.Fore.WHITE}{colorama.Style.DIM}═{colorama.Style.RESET_ALL}")
+    # banner = banner.replace("╝", f"{colorama.Fore.WHITE}{colorama.Style.DIM}╝{colorama.Style.RESET_ALL}")
+    # banner = banner.replace("╔", f"{colorama.Fore.WHITE}{colorama.Style.DIM}╔{colorama.Style.RESET_ALL}")
+    # banner = banner.replace("╚", f"{colorama.Fore.WHITE}{colorama.Style.DIM}╚{colorama.Style.RESET_ALL}")
     
     print(pystyle.Center.XCenter(banner))
-    # for line in banner.splitlines():
-    #     print(f"{line}".center(os.get_terminal_size().columns))
     
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}")
+    print(pystyle.Center.XCenter(f"epic gamer rewrite of ghost"))
     print()
-    print(f"—————————————————————————————————————{copyright_}—————————————————————————————————————")
+    print(f"{colorama.Fore.BLUE}—————————————————————————————————————{copyright_}—————————————————————————————————————")
     print(f"{colorama.Style.RESET_ALL}")
 
 def print_color(color, text):
     print(color + text + colorama.Style.RESET_ALL)
 
 def print_cmd(text):
-    print(f"{colorama.Fore.LIGHTBLACK_EX}[{get_formatted_time()}] {colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}[COMMAND]{colorama.Style.RESET_ALL} {text}")
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTBLUE_EX}{colorama.Style.BRIGHT}[COMMAND]{colorama.Style.RESET_ALL} {text}")
 
 def print_info(text):
-    print(f"{colorama.Fore.LIGHTBLACK_EX}[{get_formatted_time()}] {colorama.Fore.LIGHTGREEN_EX}{colorama.Style.BRIGHT}[INFO]{colorama.Style.RESET_ALL} {text}")
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTGREEN_EX}{colorama.Style.BRIGHT}[INFO]{colorama.Style.RESET_ALL} {text}")
 
 def print_success(text):
-    print(f"{colorama.Fore.LIGHTBLACK_EX}[{get_formatted_time()}] {colorama.Fore.LIGHTGREEN_EX}{colorama.Style.BRIGHT}[SUCCESS]{colorama.Style.RESET_ALL} {text}")
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTGREEN_EX}{colorama.Style.BRIGHT}[SUCCESS]{colorama.Style.RESET_ALL} {text}")
 
 def print_error(text):
-    print(f"{colorama.Fore.LIGHTBLACK_EX}[{get_formatted_time()}] {colorama.Fore.LIGHTRED_EX}{colorama.Style.BRIGHT}[ERROR]{colorama.Style.RESET_ALL} {text}")
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTRED_EX}{colorama.Style.BRIGHT}[ERROR]{colorama.Style.RESET_ALL} {text}")
 
 def print_warning(text):
-    print(f"{colorama.Fore.LIGHTBLACK_EX}[{get_formatted_time()}] {colorama.Fore.LIGHTYELLOW_EX}{colorama.Style.BRIGHT}[WARNING]{colorama.Style.RESET_ALL} {text}")
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTYELLOW_EX}{colorama.Style.BRIGHT}[WARNING]{colorama.Style.RESET_ALL} {text}")
 
 def print_cli(text):
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTMAGENTA_EX}{colorama.Style.BRIGHT}[CLI]{colorama.Style.RESET_ALL} {text}")
 
 def print_sniper(sniper, title, description: dict, success=True):
     colour = colorama.Fore.LIGHTGREEN_EX if success else colorama.Fore.LIGHTRED_EX
