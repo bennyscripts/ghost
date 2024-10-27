@@ -2,6 +2,8 @@ import os
 import sys
 import discord
 import json
+import psutil
+import platform
 
 from discord.ext import commands
 from utils import config
@@ -134,6 +136,37 @@ command amount :: {command_amount}""")), delete_after=self.cfg.get("message_sett
             await cmdhelper.send_message(ctx, discord.imgembed.Embed(title="prefix", description=f"Set your prefix to {prefix}").to_dict())
             self.bot.command_prefix = prefix
             cfg.set("prefix", prefix)
+
+    @commands.command(name="specs", description="View your computer's specs", usage="")
+    async def specs(self, ctx):
+        cpu_name = platform.processor()
+        ram_size = psutil.virtual_memory().total
+        disk_size = psutil.disk_usage("/").total
+        os_name = platform.system()
+        python_version = platform.python_version()
+
+        if platform.system() == "Windows":
+            disk_size = psutil.disk_usage("C:").total
+
+        ram_size = f"{ram_size // 1000000000}GB"
+        disk_size = f"{disk_size // 1000000000}GB"
+
+        info = {
+            "OS": f"{os_name}",
+            "CPU": cpu_name if cpu_name else "Unknown",
+            "RAM": f"{ram_size}",
+            "Disk": f"{disk_size}",
+            "Python": python_version,
+        }
+
+        longest_key = max([len(key) for key in info.keys()])
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Computer Specs",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()]),
+            "thumbnail": ""
+        })
 
 def setup(bot):
     bot.add_cog(Util(bot))
