@@ -6,6 +6,8 @@ from utils import config
 from utils import codeblock
 from utils import cmdhelper
 from utils import imgembed
+from utils import webhook as webhook_client
+from utils import console
 
 class Sniper(commands.Cog):
     def __init__(self, bot):
@@ -170,6 +172,65 @@ class Sniper(commands.Cog):
             "description": f"Privnote sniper has been turned {state}\nGhost will now restart to apply changes.",
             "colour": "#00ff00" if sniper_state else "#ff0000"
         })
+
+    @commands.command(name="webhooksetup", description="Setup webhooks for all snipers.", usage="", aliases=["setupwebhooks"])
+    async def webhooksetup(self, ctx):
+        cfg = config.Config()
+        snipers = cfg.get_snipers()
+
+        msg = await cmdhelper.send_message(ctx, {
+            "title": "Webhook Setup",
+            "description": "Please create a new server using the link below.",
+        })
+        await ctx.send("https://discord.new/sFPj3UpwJaPh", delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        console.print_info("Waiting for new server to be created...")
+
+        try:
+            response = await self.bot.wait_for("guild_join", timeout=30)
+        except Exception as e:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "Couldn't find a new server made within the given time.",
+                "colour": "#ff0000"
+            })
+            console.print_error("Couldn't find a new server made within the given time.")
+            return
+        
+        if response is None:
+            return await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "Guild couldn't be found.",
+                "colour": "#ff0000"
+            })
+
+        try:
+            with open("ghost.png", "rb") as f:
+                icon = f.read()
+        except Exception as e:
+            icon = None
+
+        console.print_success("New server has been created.")
+        await msg.delete()
+        await response.edit(name="Ghost Webhooks", icon=icon)
+
+        console.print_info("Setting up server...")
+        for channel in response.channels:
+            await channel.delete()
+
+        main_channel = await response.create_text_channel("general")
+        webhook_category = await response.create_category("Webhooks")
+
+        for sniper in snipers:
+            channel = await webhook_category.create_text_channel(sniper.name.capitalize())
+            webhook = webhook_client.create_webhook(channel.id, sniper.name.capitalize())
+            sniper.set_webhook(webhook)
+
+        console.print_success("Webhooks have been setup.")
+        await cmdhelper.send_message(main_channel, {
+            "title": "Webhook Setup",
+            "description": "Webhooks have been successfully setup.\nYou may need to restart Ghost to make sure all changes have been applied.",
+            "colour": "#00ff00"
+        }, delete_after=100000)
 
 def setup(bot):
     bot.add_cog(Sniper(bot))
