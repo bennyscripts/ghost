@@ -1,5 +1,6 @@
 import discord
 import os
+import datetime
 
 from discord.ext import commands
 from utils import config
@@ -64,9 +65,41 @@ class Mod(commands.Cog):
             "description": f"Purged {len(delete)} messages."
         })
 
+    @commands.command(name="lock", description="Lock the channel.", usage="")
+    async def lock(self, ctx):
+        if not ctx.message.author.guild_permissions.manage_channels:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
+        
+        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await cmdhelper.send_message(ctx, {
+            "title": "Lock",
+            "description": "Channel locked."
+        })
+
+    @commands.command(name="unlock", description="Unlock the channel.", usage="")
+    async def unlock(self, ctx):
+        if not ctx.message.author.guild_permissions.manage_channels:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
+
+        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
+        await cmdhelper.send_message(ctx, {
+            "title": "Unlock",
+            "description": "Channel unlocked."
+        })
+
     @commands.command(name="banlist", description="List all banned members.", usage="")
     async def banlist(self, ctx):
-        if not ctx.message.author.guild_permissions.administrator:
+        if not ctx.message.author.guild_permissions.ban_members:
             await cmdhelper.send_message(ctx, {
                 "title": "Error",
                 "description": "You do not have permission to use this command.",
@@ -95,12 +128,43 @@ class Mod(commands.Cog):
 
     @commands.command(name="ban", description="Ban a member from the command server.", usage="[member]")
     async def ban(self, ctx, member: discord.Member):
+        if not ctx.message.author.guild_permissions.ban_members:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
 
         try:
             await member.ban()
             await cmdhelper.send_message(ctx, {
                 "title": "Ban",
-                "description": f"Banned {member.name}#{member.discriminator}"
+                "description": f"Banned {member.name}"
+            })
+            
+        except Exception as e:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": f"{e}",
+                "colour": "ff0000"
+            })
+
+    @commands.command(name="unban", description="Unban a member from the command server.", usage="[member]")
+    async def unban(self, ctx, member: discord.Member):
+        if not ctx.message.author.guild_permissions.ban_members:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
+
+        try:
+            await member.unban()
+            await cmdhelper.send_message(ctx, {
+                "title": "Unban",
+                "description": f"Unbanned {member.name}"
             })
             
         except Exception as e:
@@ -112,11 +176,19 @@ class Mod(commands.Cog):
 
     @commands.command(name="kick", description="Kick a member from the command server.", usage="[member]")
     async def kick(self, ctx, member: discord.Member):
+        if not ctx.message.author.guild_permissions.kick_members:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
+
         try:
             await member.kick()
             await cmdhelper.send_message(ctx, {
                 "title": "Kick",
-                "description": f"Kicked {member.name}#{member.discriminator}"
+                "description": f"Kicked {member.name}"
             })
             
         except Exception as e:
@@ -125,6 +197,57 @@ class Mod(commands.Cog):
                 "description": f"{e}",
                 "colour": "ff0000"
             })
+
+    @commands.command(name="mute", description="Mute a member.", usage="[member] [length]", aliases=["timeout"])
+    async def mute(self, ctx, member: discord.Member, time: str):
+        if not ctx.message.author.guild_permissions.mute_members:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
+        
+        length = ""
+
+        if time.endswith("s"):
+            length = int(time[:-1])
+
+        elif time.endswith("m"):
+            length = int(time[:-1]) * 60
+
+        elif time.endswith("h"):
+            length = int(time[:-1]) * 60 * 60
+
+        elif time.endswith("d"):
+            length = int(time[:-1]) * 60 * 60 * 24
+
+        else:
+            length = int(time)
+
+        length = datetime.timedelta(seconds=length)
+
+        await member.timeout(length)
+        await cmdhelper.send_message(ctx, {
+            "title": "Mute",
+            "description": f"Muted {member.name} for {time}"
+        })
+
+    @commands.command(name="unmute", description="Unmute a member.", usage="[member]", aliases=["untimeout"])
+    async def unmute(self, ctx, member: discord.Member):
+        if not ctx.message.author.guild_permissions.mute_members:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You do not have permission to use this command.",
+                "colour": "ff0000"
+            })
+            return
+
+        await member.timeout(datetime.timedelta(seconds=0))
+        await cmdhelper.send_message(ctx, {
+            "title": "Unmute",
+            "description": f"Unmuted {member.name}"
+        })
 
 def setup(bot):
     bot.add_cog(Mod(bot))
