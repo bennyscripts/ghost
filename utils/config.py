@@ -44,6 +44,28 @@ DEFAULT_THEME = {
     "footer": "ghost aint dead"
 }
 
+class Theme:
+    def __init__(self, **kwargs):
+        self.name = kwargs.get("name")
+        self.title = kwargs.get("title")
+        self.emoji = kwargs.get("emoji")
+        self.image = kwargs.get("image")
+        self.colour = kwargs.get("colour")
+        self.footer = kwargs.get("footer")
+
+    def save(self):
+        with open(f"themes/{self.name}.json", "w") as f:
+            json.dump({
+                "title": self.title,
+                "emoji": self.emoji,
+                "image": self.image,
+                "colour": self.colour,
+                "footer": self.footer
+            }, f, indent=4)
+            
+    def __str__(self):
+        return self.name
+
 class Sniper:
     def __init__(self, **kwargs):
         self.name = kwargs.get("name")
@@ -92,18 +114,8 @@ class Sniper:
 
 class Config:
     def __init__(self) -> None:
-        self.config = {}
-        self.config_without_theme_dict = {}
-        self.theme = {}
-            
-        if os.path.exists("config.json"):
-            self.config = json.load(open("config.json"))
-            self.config_without_theme_dict = json.load(open("config.json"))
-
-            if isinstance(self.config["theme"], str):
-                self.theme = self.get_theme_file(self.config["theme"])
-                self.config["theme_name"] = self.config["theme"]
-                self.config["theme"] = self.theme
+        self.config = json.load(open("config.json"))
+        self.theme = self.get_theme(self.config["theme"])
     
     def check(self):
         if not os.path.exists("backups/"):
@@ -184,14 +196,24 @@ class Config:
     def save_theme_file(self, theme_name, new_obj) -> None:
         json.dump(new_obj, open(f"themes/{theme_name}.json", "w"), indent=4)
 
+    def get_theme(self, theme_name):
+        theme_obj = self.get_theme_file(theme_name)
+        theme_obj["name"] = theme_name
+        return Theme(**theme_obj)
+
     def set_theme(self, theme_name):
-        theme = self.get_theme_file(theme_name)
-        self.config["theme_name"] = theme_name
-        self.config["theme"] = theme
+        self.config["theme"] = theme_name
         self.save()
+        self.theme = self.get_theme(theme_name)
 
     def get_themes(self):
-        return [file.split(".")[0] for file in os.listdir("themes/")]
+        themes = []
+        for theme in os.listdir("themes/"):
+            if theme.endswith(".json"):
+                theme = theme.replace(".json", "")
+                themes.append(Theme(name=theme, **self.get_theme_file(theme)))
+
+        return themes
 
     def get_sniper(self, sniper):
         if sniper not in self.config["snipers"]:
