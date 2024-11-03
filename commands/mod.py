@@ -1,13 +1,13 @@
 import discord
-import os
+import asyncio
 import datetime
 import requests
+import random
 
 from discord.ext import commands
 from utils import config
-from utils import codeblock
+from utils import console
 from utils import cmdhelper
-from utils import imgembed
 
 class Mod(commands.Cog):
     def __init__(self, bot):
@@ -262,6 +262,87 @@ class Mod(commands.Cog):
             "title": "Unmute",
             "description": f"Unmuted {member.name}"
         })
+
+    @commands.command(name="poll", description="Create a poll.", usage="[question] [options]")
+    async def poll(self, ctx, question, *options):
+        if len(options) > 10:
+            return await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You can only have a maximum of 10 options.",
+                "colour": "ff0000"
+            })
+
+        if len(options) < 2:
+            return await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You need at least 2 options.",
+                "colour": "ff0000"
+            })
+        
+        description = ""
+        for i, option in enumerate(options):
+            description += f"{i + 1}. {option}\n"
+
+        msg = await cmdhelper.send_message(ctx, {
+            "title": question,
+            "description": description
+        }, delete_after=10000000)
+
+        for i in range(len(options)):
+            await msg.add_reaction(f"{i + 1}\u20e3")
+
+    @commands.command(name="discordpoll", description="Create a poll using discord's poll feature.", usage="[question] [options]")
+    async def discordpoll(self, ctx, question, *options):
+        if len(options) > 10:
+            return await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You can only have a maximum of 10 options.",
+                "colour": "ff0000"
+            })
+
+        if len(options) < 2:
+            return await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": "You need at least 2 options.",
+                "colour": "ff0000"
+            })
+
+        resp = requests.post(f"https://discord.com/api/channels/{ctx.channel.id}/messages", headers={
+            "Authorization": f"{self.cfg.get('token')}",
+            "Content-Type": "application/json"
+        }, json={
+            "content": "",
+            "poll": {
+                "question": {
+                    "text": question
+                },
+                "answers": [
+                    {
+                        "poll_media": {
+                            "text": option
+                        }
+                    } for option in options
+                ],
+                "allow_multiselect": False,
+                "duration": 24,
+                "layout_type": 1
+            }
+        })
+
+        if resp.status_code != 200:
+            await cmdhelper.send_message(ctx, {
+                "title": "Error",
+                "description": f"Failed to create poll, see console for more information.",
+                "colour": "ff0000"
+            })
+
+            console.print_error(f"Failed to create poll: {resp.json()}")
+
+        else:
+            await cmdhelper.send_message(ctx, {
+                "title": "Poll",
+                "description": "Poll created."
+            })
 
 def setup(bot):
     bot.add_cog(Mod(bot))
