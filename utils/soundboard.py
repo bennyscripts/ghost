@@ -97,8 +97,3 @@ class Soundboard:
                 ))
 
         return sounds
-    
-if __name__ == "__main__":
-    soundboard = Soundboard("MTA0MjE1Mzk5ODI1OTYwNTYwNA.GF04HF.XElxlFoI5rf_hspq0wupiqHNDa4UShm-xQlXn4", "1108750276028022855", "1116797349361106964")
-    sound = soundboard.upload_sound("hello.mp3", name="testing", emoji_id=None, volume=1)
-    print(sound.id)
