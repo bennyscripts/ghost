@@ -158,5 +158,51 @@ class Abuse(commands.Cog):
         print()
         console.print_banner()
 
+    @commands.command(name="pollspam", description="Flood a channel with polls.")
+    async def pollspam(self, ctx):
+        # if not ctx.guild.me.guild_permissions.create_expressions:
+        #     console.print_error("Bot does not have the necessary permissions to manage messages.")
+        #     return
+
+        for i in range(25):
+            try:
+                resp = requests.post(f"https://discord.com/api/channels/{ctx.channel.id}/messages", headers={
+                    "Authorization": f"{self.cfg.get('token')}",
+                    "Content-Type": "application/json"
+                }, json={
+                    "content": "",
+                    "poll": {
+                        "question": {
+                            "text": "".join(["﷽" for i in range(300)])
+                        },
+                        "answers": [
+                            {
+                                "poll_media": {
+                                    "text": "".join(["﷽" for i in range(55)])
+                                }
+                            } for i in range(10)
+                        ],
+                        "allow_multiselect": False,
+                        "duration": 24,
+                        "layout_type": 1
+                    }
+                })
+
+                if resp.status_code != 200:
+                    if "missing permissions" in resp.content.lower():
+                        console.print_error("Bot does not have the necessary permissions to manage messages.")
+                        return resp.json()
+                    
+                    console.print_error(f"Failed to create poll: {resp.json()}")
+
+                console.print_success(f"Poll created.")
+                await asyncio.sleep(.53)
+
+            except Exception as e:
+                console.print_error(f"Failed to create poll: {e}")
+                return e
+
+        console.print_info("Poll spam complete.")
+
 def setup(bot):
     bot.add_cog(Abuse(bot))
