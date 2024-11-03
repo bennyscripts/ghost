@@ -30,3 +30,6 @@ themes/rose.json
 themes/toemad.json
 data/sniped_codes.txt
 data/privnote_saves.json
+dist/*
+build/*
+events/.DS_Store
