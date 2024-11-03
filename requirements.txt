@@ -8,3 +8,4 @@ pillow
 pystyle
 psutil
 cfscrape==2.0.0
+pycryptodome
