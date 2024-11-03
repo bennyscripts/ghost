@@ -47,7 +47,7 @@ class General(commands.Cog):
 
         if command is None:
             await cmdhelper.send_message(ctx, {
-                "title": "Help",
+                "title": cfg.get("theme")["title"],
                 "description": description + f"\nThere are **{len(self.bot.commands)}** commands!",
                 "codeblock_desc": description
             }, extra_title=f"{len(self.bot.commands)} total commands")
