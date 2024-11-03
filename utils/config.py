@@ -114,6 +114,7 @@ class Sniper:
 
 class Config:
     def __init__(self) -> None:
+        self.check()
         self.config = json.load(open("config.json"))
         self.theme = self.get_theme(self.config["theme"])
     
@@ -124,13 +125,16 @@ class Config:
             os.mkdir("scripts/")
         if not os.path.exists("data/"):
             os.mkdir("data/")
+        if not os.path.exists("data/cache/"):
+            os.mkdir("data/cache/")
         if not os.path.exists("data/sniped_codes.txt"):
             open("data/sniped_codes.txt", "w").close()
         if not os.path.exists("data/privnote_saves.json"):
             json.dump({}, open("data/privnote_saves.json", "w"), indent=4)
             
         if not os.path.exists("config.json"):
-            json.dump(DEFAULT_CONFIG, open("config.json", "w"), indent=4)
+            with open("config.json", "w") as f:
+                json.dump(DEFAULT_CONFIG, f, indent=4)
             console.print_info("Created config file")
         if not os.path.exists("themes/"):
             os.makedirs("themes/")
