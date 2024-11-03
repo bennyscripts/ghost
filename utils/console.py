@@ -68,6 +68,9 @@ def print_warning(text):
 def print_cli(text):
     print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTMAGENTA_EX}{colorama.Style.BRIGHT}[CLI]{colorama.Style.RESET_ALL} {text}")
 
+def print_rpc(text):
+    print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colorama.Fore.LIGHTMAGENTA_EX}{colorama.Style.BRIGHT}[RPC]{colorama.Style.RESET_ALL} {text}")
+
 def print_sniper(sniper, title, description: dict, success=True):
     colour = colorama.Fore.LIGHTGREEN_EX if success else colorama.Fore.LIGHTRED_EX
     print(f"{colorama.Style.NORMAL}{colorama.Fore.WHITE}[{get_formatted_time()}] {colour}{colorama.Style.BRIGHT}[{sniper.upper()}]{colorama.Style.RESET_ALL} {title}")

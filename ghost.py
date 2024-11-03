@@ -54,18 +54,20 @@ ghost = commands.Bot(
 
 user = requests.get("https://discord.com/api/users/@me", headers={"Authorization": cfg.get("token")}).json()
 handler = logging.FileHandler(filename='ghost.log', encoding='utf-8', mode='w')
+rpc_log = ""
 
-try:
-    if cfg.get("rich_presence"):
-        text = f"Logged in as {user['username']}"
-        if str(user['discriminator']) != "0":
-            text += f"#{user['discriminator']}"
-
-        rich_presence = Presence("1018195507560063039")
-        rich_presence.connect()
-        rich_presence.update(details=text, large_image="icon", start=time.time())
-except Exception as e:
-    console.print_error(f"Failed to connect to Discord RPC")
+if cfg.get("rich_presence"):
+    try:
+        rpc = Presence(1018195507560063039)
+        rpc.connect()
+        rpc.update(
+            large_image="ghost",
+            start=time.time(),
+            state="ghost aint dead",
+        )
+        rpc_log = "Rich Presence connected succesfully!"
+    except Exception as e:
+        rpc_log = f"Rich Presence failed to connect: {e}"
 
 for script_file in os.listdir("scripts"):
     if script_file.endswith(".py"):
@@ -98,6 +100,9 @@ async def on_connect():
     console.print_info(text)
     console.print_info(f"You can now use commands with {cfg.get('prefix')}")
     print()
+
+    if cfg.get("rich_presence"):
+        console.print_rpc(rpc_log)
 
     notifier.Notifier.send("Ghost", text)
 

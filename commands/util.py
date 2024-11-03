@@ -138,6 +138,22 @@ command amount :: {command_amount}""")), delete_after=self.cfg.get("message_sett
             self.bot.command_prefix = prefix
             cfg.set("prefix", prefix)
 
+    @commands.command(name="richpresence", description="Toggle rich presence", usage="", aliases=["rpc"])
+    async def richpresence(self, ctx):
+        cfg = config.Config()
+        rpc = cfg.get("rich_presence")
+
+        cfg.set("rich_presence", not rpc)
+        cfg.save()
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Rich Presence",
+            "description": f"Rich Presence is now {'enabled' if not rpc else 'disabled'}\nRestarting to apply changes...",
+            "colour": "#00ff00" if not rpc else "#ff0000"
+        })
+
+        await self.restart(ctx)
+        
     @commands.command(name="specs", description="View your computer's specs", usage="")
     async def specs(self, ctx):
         cpu_name = platform.processor()
