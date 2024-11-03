@@ -33,12 +33,11 @@ DEFAULT_CONFIG = {
     }
 }
 DEFAULT_THEME = {
-    "title": "Ghost",
+    "title": "ghost selfbot",
     "emoji": "\ud83d\udc99",
-    "image": "https://raw.githubusercontent.com/bennyscripts/ghost/refs/heads/main/ghost.png",
-    "colour": "#3A7CFE",
-    "footer": "ghost.cool",
-    "style": "image"
+    "image": "https://cdn.discordapp.com/icons/1302632843176050738/e7f5c4fa0080423094fd8025f3f8d5a1.png?size=1024",
+    "colour": "#575757",
+    "footer": "ghost aint dead"
 }
 
 class Sniper:
