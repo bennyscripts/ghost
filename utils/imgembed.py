@@ -5,6 +5,7 @@ import re
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from . import files
+from . import console
 
 def add_corners(im, rad):
     # src: https://stackoverflow.com/questions/11287402/how-to-round-corner-a-logo-without-white-backgroundtransparent-on-it-using-pi
@@ -149,10 +150,13 @@ class Embed:
 
     def draw_thumbnail(self, template, draw):
         if self.thumbnail != "":
-            logo = Image.open(BytesIO(requests.get(self.thumbnail).content)).convert("RGBA")
-            logo = logo.resize((300, 300))
-            logo = add_corners(logo, 20)
-            template.alpha_composite(logo, (self.width - 300 - 45, 40))
+            try:
+                logo = Image.open(BytesIO(requests.get(self.thumbnail).content)).convert("RGBA")
+                logo = logo.resize((300, 300))
+                logo = add_corners(logo, 20)
+                template.alpha_composite(logo, (self.width - 300 - 45, 40))
+            except Exception as e:
+                console.print_error(f"Failed to load thumbnail from theme.")
 
     def draw_description(self, template, draw):
         if self.description != "":
