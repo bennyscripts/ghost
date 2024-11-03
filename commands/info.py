@@ -114,6 +114,10 @@ class Info(commands.Cog):
             "thumbnail": ctx.guild.icon.url
         })
 
+    @commands.command(name="servericon", description="Get the icon of the server.")
+    async def servericon(self, ctx):
+        await ctx.send(ctx.guild.icon.url)
+
     @commands.command(name="webhookinfo", description="Get information about a webhook.", aliases=["wi"], usage="[webhook url]")
     async def webhookinfo(self, ctx, webhook_url):
         try:
