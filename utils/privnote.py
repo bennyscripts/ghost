@@ -7,7 +7,6 @@ import Crypto
 import Crypto.Cipher.AES
 import Crypto.Random
 import Crypto.Util.Padding
-import cfscrape
 
 class AESGibberish:
     def __init__(self):
@@ -66,7 +65,6 @@ class Privnote:
         }
         self.session = requests.Session()
         self.session.headers.update(self.headers)
-        self.scraper = cfscrape.create_scraper(sess=self.session)
         self.saves = json.load(open("data/privnote_saves.json", "r"))
 
     def decrypt(self, data, password):
@@ -76,12 +74,12 @@ class Privnote:
         code = link.split("privnote.com/")[1].split(" ")[0]
         code, password = code.split("#")
 
-        resp = self.scraper.delete(self.base_url + code, headers=self.headers)
+        resp = self.session.delete(self.base_url + code, headers=self.headers)
         data = None
         try:
             data = resp.json()
         except Exception as e:
-            return False, "Blocked by cloudflare."
+            return False, e
         
         if "destroyed" not in data:
             return False, "Invalid privnote link."
