@@ -16,6 +16,10 @@ DEFAULT_CONFIG = {
         "auto_delete_delay": 15,
         "style": "image"
     },
+    "session_spoofing": {
+        "enabled": False,
+        "device": "desktop"
+    },
     "snipers": {
         "nitro": {
             "enabled": True,
@@ -205,3 +209,11 @@ class Config:
             snipers.append(Sniper(**obj))
 
         return snipers
+    
+    def get_session_spoofing(self):
+        return self.config["session_spoofing"]["enabled"], self.config["session_spoofing"]["device"]
+    
+    def set_session_spoofing(self, enabled, device):
+        self.config["session_spoofing"]["enabled"] = enabled
+        self.config["session_spoofing"]["device"] = device
+        self.save()

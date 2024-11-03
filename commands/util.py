@@ -185,6 +185,52 @@ command amount :: {command_amount}""")), delete_after=self.cfg.get("message_sett
             "thumbnail": ""
         })
 
+    @commands.command(name="sessionspoofer", description="Spoof your session", usage="[device]", aliases=["sessionspoof", "spoofsession"])
+    async def sessionspoofer(self, ctx, device = None):
+        cfg = config.Config()
+        devices = ["mobile", "desktop", "web", "embedded"]
+        spoofing, spoofing_device = cfg.get_session_spoofing()
+
+        if device is None:
+            cfg.set_session_spoofing(not spoofing, spoofing_device)
+            cfg.save()
+
+            await cmdhelper.send_message(ctx, {
+                "title": "Session Spoofing",
+                "description": f"Session spoofing is now {'enabled' if not spoofing else 'disabled'}\nRestarting to apply changes...",
+                "colour": "#00ff00" if not spoofing else "#ff0000"
+            })
+
+            await self.restart(ctx)
+            return
+
+        if not spoofing:
+            await cmdhelper.send_message(ctx, {
+                "title": "Session Spoofing",
+                "description": "Session spoofing is not enabled. Enable it in the config.",
+                "colour": "#ff0000"
+            })
+            return
+
+        if device not in devices:
+            await cmdhelper.send_message(ctx, {
+                "title": "Session Spoofing",
+                "description": f"Invalid device. Options: {', '.join(devices)}",
+                "colour": "#ff0000"
+            })
+            return
+        
+        cfg.set_session_spoofing(spoofing, device)
+        cfg.save()
+
+        await cmdhelper.send_message(ctx, {
+            "title": "Session Spoofing",
+            "description": f"Session spoofing is now enabled as {device}\nRestarting to apply changes...",
+            "colour": "#00ff00"
+        })
+
+        await self.restart(ctx)
+
     @commands.command(name="uptime", description="View the bot's uptime", usage="")
     async def uptime(self, ctx):
         uptime = psutil.boot_time()
