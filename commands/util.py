@@ -114,19 +114,23 @@ class Util(commands.Cog):
         cfg = config.Config()
         command_amount = len(self.bot.commands)
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            await ctx.send(str(codeblock.Codeblock(title="settings", description=f"""prefix         :: {self.bot.command_prefix}
-version        :: {config.VERSION}
-command amount :: {command_amount}""")), delete_after=self.cfg.get("message_settings")["auto_delete_delay"])
+        info = {
+            "Prefix": cfg.get("prefix"),
+            "Rich Presence": cfg.get("rich_presence"),
+            "Theme": cfg.get("theme")["name"],
+            "Style": cfg.get("message_settings")["style"],
+            "Uptime": str(psutil.Process().create_time() - psutil.boot_time()).split(".")[0],
+            "Command Amount": command_amount,
+        }
 
-        else:
-            embed = imgembed.Embed(title="Settings", description=f"**Prefix:** {self.bot.command_prefix}\n**Version:** {config.VERSION}\n**Command Amount:** {command_amount}", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
+        longest_key = max([len(key) for key in info.keys()])
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
-
+        await cmdhelper.send_message(ctx, {
+            "title": "Settings",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()]),
+            "thumbnail": ""
+        })
 
     @commands.command(name="prefix", description="Set the prefix", usage="[prefix]")
     async def prefix(self, ctx, prefix):
