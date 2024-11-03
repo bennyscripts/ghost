@@ -132,9 +132,9 @@ command amount :: {command_amount}""")), delete_after=self.cfg.get("message_sett
     async def prefix(self, ctx, prefix):
         cfg = config.Config()
         if self.bot.command_prefix == prefix:
-            await cmdhelper.send_message(ctx, discord.imgembed.Embed(title="prefix", description=f"{prefix} is already youre prefix").to_dict())
+            await cmdhelper.send_message(ctx, discord.Embed(title="prefix", description=f"{prefix} is already youre prefix").to_dict())
         else:
-            await cmdhelper.send_message(ctx, discord.imgembed.Embed(title="prefix", description=f"Set your prefix to {prefix}").to_dict())
+            await cmdhelper.send_message(ctx, discord.Embed(title="prefix", description=f"Set your prefix to {prefix}").to_dict())
             self.bot.command_prefix = prefix
             cfg.set("prefix", prefix)
 
