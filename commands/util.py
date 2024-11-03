@@ -23,25 +23,14 @@ class Util(commands.Cog):
         cfg = config.Config()
         pages = cmdhelper.generate_help_pages(self.bot, "Util")
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(
-                f"{cfg.get('theme')['emoji']} utility commands",
-                description=pages["codeblock"][selected_page - 1],
-                extra_title=f"Page {selected_page}/{len(pages['codeblock'])}"
-            )
+        await cmdhelper.send_message(ctx, {
+            "title": f"{cfg.theme.emoji} utility commands",
+            "description": pages["image"][selected_page - 1],
+            "footer": f"Page {selected_page}/{len(pages['image'])}",
+            "codeblock_desc": pages["codeblock"][selected_page - 1]
+        }, extra_title=f"Page {selected_page}/{len(pages['image'])}")
 
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title="Utility Commands", description=pages["image"][selected_page - 1], colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=f"Page {selected_page}/{len(pages['image'])}")
-            embed.set_thumbnail(url=cfg.get("theme")["image"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
-
-    @commands.group(name="config", description="Configure ghost.", usage="")
+    @commands.group(name="config", description="Configure ghost.", usage="", aliases=["cfg"])
     async def config(self, ctx):
         cfg = config.Config()
 
@@ -103,7 +92,7 @@ class Util(commands.Cog):
         cfg = config.Config()
         
         await cmdhelper.send_message(ctx, {
-            "title": cfg.get("theme")["title"],
+            "title": cfg.theme.title,
             "description": "restarting the ghost...",
         })
         
@@ -117,7 +106,7 @@ class Util(commands.Cog):
         info = {
             "Prefix": cfg.get("prefix"),
             "Rich Presence": cfg.get("rich_presence"),
-            "Theme": cfg.get("theme")["name"],
+            "Theme": cfg.theme.name,
             "Style": cfg.get("message_settings")["style"],
             "Uptime": str(psutil.Process().create_time() - psutil.boot_time()).split(".")[0],
             "Command Amount": command_amount,

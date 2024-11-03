@@ -24,23 +24,12 @@ class Img(commands.Cog):
         cfg = config.Config()
         pages = cmdhelper.generate_help_pages(self.bot, "Img")
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(
-                f"{cfg.get('theme')['emoji']} img commands",
-                description=pages["codeblock"][selected_page - 1],
-                extra_title=f"Page {selected_page}/{len(pages['codeblock'])}"
-            )
-
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title="Image Commands", description=pages["image"][selected_page - 1], colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=f"Page {selected_page}/{len(pages['image'])}")
-            embed.set_thumbnail(url=cfg.get("theme")["image"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {
+            "title": f"{cfg.theme.emoji} image commands",
+            "description": pages["image"][selected_page - 1],
+            "footer": f"Page {selected_page}/{len(pages['image'])}",
+            "codeblock_desc": pages["codeblock"][selected_page - 1]
+        }, extra_title=f"Page {selected_page}/{len(pages['image'])}")
 
     @commands.command(name="gato", description="Get a random cat picture.", aliases=["cat", "catpic"], usage="")
     async def gato(self, ctx):
@@ -102,7 +91,7 @@ class Img(commands.Cog):
                     "title": "Image Search",
                     "description": "The search failed, try another query.",
                     "colour": "#ff0000",
-                    "footer": cfg.get("theme")["footer"],
+                    "footer": cfg.theme.footer,
                 })
             else:
                 if "suggested_searches" not in body:
@@ -110,7 +99,7 @@ class Img(commands.Cog):
                         "title": "Image Search",
                         "description": "The search failed, try another query.",
                         "colour": "#ff0000",
-                        "footer": cfg.get("theme")["footer"],
+                        "footer": cfg.theme.footer,
                     })
 
                 else:
@@ -122,8 +111,8 @@ class Img(commands.Cog):
                         await cmdhelper.send_message(ctx, {
                             "title": "Image Search",
                             "description": f"We found {len(images_results)} results for {query}. A random result will be sent.",
-                            "colour": cfg.get("theme")["colour"],
-                            "footer": cfg.get("theme")["footer"]
+                            "colour": cfg.theme.colour,
+                            "footer": cfg.theme.footer
                         })
 
                     
@@ -152,7 +141,7 @@ class Img(commands.Cog):
                 "title": "Image Search",
                 "description": "The search failed, try another query.",
                 "colour": "#ff0000",
-                "footer": cfg.get("theme")["footer"],
+                "footer": cfg.theme.footer,
             }) 
 
 def setup(bot):

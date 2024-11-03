@@ -19,31 +19,25 @@ class Theming(commands.Cog):
         cfg = config.Config()
         pages = cmdhelper.generate_help_pages(self.bot, "Theming")
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(
-                f"{cfg.get('theme')['emoji']} Theme commands",
-                description=pages["codeblock"][selected_page - 1],
-                extra_title=f"Page {selected_page}/{len(pages['codeblock'])}"
-            )
-
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title="Theme Commands", description=pages["image"][selected_page - 1], colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=f"Page {selected_page}/{len(pages['image'])}")
-            embed.set_thumbnail(url=cfg.get("theme")["image"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {
+            "title": f"{cfg.theme.emoji} theme commands",
+            "description": pages["image"][selected_page - 1],
+            "footer": f"Page {selected_page}/{len(pages['image'])}",
+            "codeblock_desc": pages["codeblock"][selected_page - 1]
+        }, extra_title=f"Page {selected_page}/{len(pages['image'])}")
 
     @commands.command(name="themes", description="Lists all your themes.", usage="")
     async def themes(self, ctx):
         cfg = config.Config()
+        desc = ""
+
+        for theme in cfg.get_themes():
+            desc += f"- {theme}\n"
+
         await cmdhelper.send_message(ctx, {
             "title": "Themes",
-            "description": "\n".join(cfg.get_themes()),
-            "colour": cfg.get("theme")["colour"],
+            "description": desc,
+            "colour": cfg.theme.colour,
             "footer": f"Use {self.bot.command_prefix}theme [name] to change your theme",
         })
 
@@ -57,38 +51,26 @@ class Theming(commands.Cog):
                 await self.change_theme(ctx, msg_split[1])
 
             else:
-                theme = cfg.get("theme")
-                if cfg.get("message_settings")["style"] == "image":
-                    description = f"**Current Theme:** {cfg.config['theme_name']}\n\n"
-                else:
-                    description = f"Current Theme: {cfg.config['theme_name']}\n\n"
-
-                for key, value in theme.items():
-                    val = value
-                    if len(value) > 50:
-                        val = "Too long to display"
-                        
-                    description += f"{key}: {val}\n"
-
+                theme = cfg.theme
                 await cmdhelper.send_message(ctx, {
                     "title": "Theme",
-                    "description": description,
-                    "colour": cfg.get("theme")["colour"],
-                    "footer": f"Use {self.bot.command_prefix}theme set [name] to change your theme",
+                    "description": f"Current theme: {theme.name}",
+                    "colour": theme.colour,
+                    "footer": theme.footer,
                 })
 
     @theme.command(name="set", description="Change your theme", usage="[theme]")
     async def change_theme(self, ctx, theme_name: str = None):
         cfg = config.Config()
         description = ""
-        colour = cfg.get("theme")["colour"]
+        colour = cfg.theme.colour
         theme = cfg.get_theme_file(theme_name)
 
         if theme:
             cfg.set_theme(theme_name)
             cfg = config.Config()
 
-            colour = cfg.get("theme")["colour"]
+            colour = cfg.theme.colour
             description = f"Theme set to {theme_name}"
         else:
             colour = "#ff0000"
@@ -101,27 +83,34 @@ class Theming(commands.Cog):
             "title": "Theme",
             "description": description,
             "colour": colour,
-            "footer": cfg.get("theme")["footer"],
+            "footer": cfg.theme.footer,
         })
 
     async def theme_set(self, ctx, subkey, value):
         cfg = config.Config()
         description = ""
-        colour = ""
 
         key = "message_settings" if subkey == "style" else "theme"
 
-        cfg.config[key][subkey] = value
-        cfg.save()
-        description = f"{subkey} set to {value}"
+        if key == "theme":
+            theme = cfg.theme
+            theme.__dict__[subkey] = value
+            description = f"Theme {subkey} set to {value}"
+            cfg.theme.save()
 
+        elif key == "message_settings":
+            message_settings = cfg.get(key)
+            message_settings[subkey] = value
+            description = f"Message setting {subkey} set to {value}"
+
+        cfg.save()
         cfg = config.Config() # Re iniate the config var because it needs to load the new local version of the config dict
         
         await cmdhelper.send_message(ctx, {
             "title": "Theme",
             "description": description,
-            "colour": cfg.get("theme")["colour"],
-            "footer": cfg.get("theme")["footer"],
+            "colour": cfg.theme.colour,
+            "footer": cfg.theme.footer,
         })
 
     @theme.command(name="title", description="Set the title of the embed.", usage="[title]")
@@ -144,7 +133,7 @@ class Theming(commands.Cog):
     async def theme_style(self, ctx, style: str):
         await self.theme_set(ctx=ctx, subkey="style", value=style)
 
-    @commands.command(name="imagemode", description="Set your theme style to image.", usage="")
+    @commands.command(name="imagemode", description="Set your theme style to image.", usage="", aliases=["imgmode"])
     async def imagemode(self, ctx):
         await self.theme_set(ctx=ctx, subkey="style", value="image")
 

@@ -20,23 +20,12 @@ class Mod(commands.Cog):
         cfg = config.Config()
         pages = cmdhelper.generate_help_pages(self.bot, "Mod")
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(
-                f"{cfg.get('theme')['emoji']} mod commands",
-                description=pages["codeblock"][selected_page - 1],
-                extra_title=f"Page {selected_page}/{len(pages['codeblock'])}"
-            )
-
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title="Moderation Commands", description=pages["image"][selected_page - 1], colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=f"Page {selected_page}/{len(pages['image'])}")
-            embed.set_thumbnail(url=cfg.get("theme")["image"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {
+            "title": f"{cfg.theme.emoji} mod commands",
+            "description": pages["image"][selected_page - 1],
+            "footer": f"Page {selected_page}/{len(pages['image'])}",
+            "codeblock_desc": pages["codeblock"][selected_page - 1]
+        }, extra_title=f"Page {selected_page}/{len(pages['image'])}")
 
     @commands.command(name="clear", description="Clear a number of messages.", aliases=["purge"], usage="[number]")
     async def clear(self, ctx, number: int):

@@ -66,11 +66,12 @@ def generate_help_pages(bot, cog):
 
 async def send_message(ctx, embed_obj: dict, extra_title="", extra_message="", delete_after=None):
     cfg = config.Config()
-    title = embed_obj.get("title", cfg.get("theme")["title"])
+    theme = cfg.theme
+    title = embed_obj.get("title", theme.title)
     description = embed_obj.get("description", "")
-    colour = embed_obj.get("colour", cfg.get("theme")["colour"])
-    footer = embed_obj.get("footer", cfg.get("theme")["footer"])
-    thumbnail = embed_obj.get("thumbnail", cfg.get("theme")["image"])
+    colour = embed_obj.get("colour", theme.colour)
+    footer = embed_obj.get("footer", theme.footer)
+    thumbnail = embed_obj.get("thumbnail", theme.image)
     codeblock_desc = embed_obj.get("codeblock_desc", description)
     if delete_after is None:
         delete_after = cfg.get("message_settings")["auto_delete_delay"]
@@ -81,6 +82,10 @@ async def send_message(ctx, embed_obj: dict, extra_title="", extra_message="", d
 
         msg = await ctx.send(str(codeblock.Codeblock(title=title, description=codeblock_desc, extra_title=extra_title)), delete_after=delete_after)
     elif cfg.get("message_settings")["style"] == "image":
+        if theme.emoji in title:
+            title = title.replace(theme.emoji, "")
+        
+        title = title.lstrip()
         embed2 = imgembed.Embed(title=title, description=description, colour=colour)
         embed2.set_footer(text=footer)
         embed2.set_thumbnail(url=thumbnail)

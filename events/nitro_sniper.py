@@ -50,7 +50,7 @@ class NitroSniper(commands.Cog):
             embed.add_field(name="Type", value=f"```{resp['subscription_plan']['name']}```", inline=False)
             embed.add_field(name="Content", value=f"```{message.content}```", inline=False)
 
-        embed.set_thumbnail(url=self.cfg.get("theme")["image"])
+        embed.set_thumbnail(url=self.cfg.theme.image)
         webhook.send(embed=embed.to_dict())
 
     async def validate(self, code):

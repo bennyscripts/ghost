@@ -6,7 +6,6 @@ from discord.ext import commands
 from utils import config
 from utils import codeblock
 from utils import cmdhelper
-from utils import shortener
 from utils import imgembed
 
 class Info(commands.Cog):
@@ -20,23 +19,12 @@ class Info(commands.Cog):
         cfg = config.Config()
         pages = cmdhelper.generate_help_pages(self.bot, "Info")
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(
-                f"{cfg.get('theme')['emoji']} info commands",
-                description=pages["codeblock"][selected_page - 1],
-                extra_title=f"Page {selected_page}/{len(pages['codeblock'])}"
-            )
-
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title="Info Commands", description=pages["image"][selected_page - 1], colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=f"Page {selected_page}/{len(pages['image'])}")
-            embed.set_thumbnail(url=cfg.get("theme")["image"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {
+            "title": f"{cfg.theme.emoji} info commands",
+            "description": pages["image"][selected_page - 1],
+            "footer": f"Page {selected_page}/{len(pages['image'])}",
+            "codeblock_desc": pages["codeblock"][selected_page - 1]
+        }, extra_title=f"Page {selected_page}/{len(pages['image'])}")
 
     @commands.command(name="iplookup", description="Look up an IP address.", usage="[ip]", aliases=["ipinfo"])
     async def iplookup(self, ctx, ip):
@@ -155,9 +143,9 @@ class Info(commands.Cog):
             await ctx.send(str(codeblock.Codeblock(title="avatar", extra_title=str(user))) + user.avatar.url, delete_after=cfg.get("message_settings")["auto_delete_delay"])
 
         else:
-            embed = imgembed.Embed(title=f"{user.name}'s avatar", description="The link has been added above for a higher quality image.", colour=cfg.get("theme")["colour"])
+            embed = imgembed.Embed(title=f"{user.name}'s avatar", description="The link has been added above for a higher quality image.", colour=cfg.theme.colour)
             embed.set_thumbnail(url=str(user.avatar.url))
-            embed.set_footer(text=cfg.get("theme")["footer"])
+            embed.set_footer(text=cfg.theme.footer)
             embed_file = embed.save()
 
             await ctx.send(content=f"<{user.avatar.url}>", file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])

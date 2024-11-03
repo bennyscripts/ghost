@@ -37,23 +37,12 @@ class Fun(commands.Cog):
         cfg = config.Config()
         pages = cmdhelper.generate_help_pages(self.bot, "Fun")
 
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock(
-                f"{cfg.get('theme')['emoji']} fun commands",
-                description=pages["codeblock"][selected_page - 1],
-                extra_title=f"Page {selected_page}/{len(pages['codeblock'])}"
-            )
-
-            await ctx.send(msg, delete_after=cfg.get("message_settings")["auto_delete_delay"])
-
-        else:
-            embed = imgembed.Embed(title="Fun Commands", description=pages["image"][selected_page - 1], colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=f"Page {selected_page}/{len(pages['image'])}")
-            embed.set_thumbnail(url=cfg.get("theme")["image"])
-            embed_file = embed.save()
-
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"), delete_after=cfg.get("message_settings")["auto_delete_delay"])
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {
+            "title": f"{cfg.theme.emoji} fun commands",
+            "description": pages["image"][selected_page - 1],
+            "footer": f"Page {selected_page}/{len(pages['image'])}",
+            "codeblock_desc": pages["codeblock"][selected_page - 1]
+        }, extra_title=f"Page {selected_page}/{len(pages['image'])}")
 
     @commands.command(name="rickroll", description="Never gonna give you up.", usage="")
     async def rickroll(self, ctx):
@@ -297,31 +286,23 @@ class Fun(commands.Cog):
 
         address_resp = requests.post("https://randommer.io/random-address", data={"number": "1", "culture": "en_US"}, headers={"content-type": "application/x-www-form-urlencoded; charset=UTF-8", "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"})
         address = address_resp.json()[0]
-        
-        if cfg.get("message_settings")["style"] == "codeblock":
-            msg = codeblock.Codeblock("dox", extra_title=f"{user.name}'s dox", description=f"""Name          :: {name}
-Email         :: {email}
-Date of birth :: {dob.strftime("%d/%m/%Y")}
-Current age   :: {age} years old
-Phone number  :: {phone}
-Address       :: {address}
-""")
 
-            await ctx.send(msg)
+        info = {
+            "Name": name,
+            "Email": email,
+            "Date of birth": dob.strftime("%d/%m/%Y"),
+            "Current age": f"{age} years old",
+            "Phone number": phone,
+            "Address": f"{address['address1']}, {address['city']}, {address['state']} {address['zip']}"
+        }
 
-        else:
-            embed = imgembed.Embed(title=f"{user.name}'s dox", description=f"""**Name:** {name}
-**Email:** {email}
-**Date of birth:** {dob.strftime("%d/%m/%Y")}
-**Current age:** {age} years old
-**Phone number:** {phone}
-**Address:** {address}
-""", colour=cfg.get("theme")["colour"])
-            embed.set_footer(text=cfg.get("theme")["footer"])
-            embed_file = embed.save()
+        longest_key = max([len(key) for key in info])
 
-            await ctx.send(file=discord.File(embed_file, filename="embed.png"))
-            os.remove(embed_file)
+        await cmdhelper.send_message(ctx, {
+            "title": "Dox",
+            "description": "\n".join([f"**{key}:** {value}" for key, value in info.items()]),
+            "codeblock_desc": "\n".join([f"{key}{' ' * (longest_key - len(key))} :: {value}" for key, value in info.items()])
+        }, extra_title=f"{user.name}'s dox")
 
     @commands.command(name="meme", description="Gets a random meme.", aliases=["getmeme", "randommeme"], usage="")
     async def meme(self, ctx):
@@ -393,8 +374,7 @@ Address       :: {address}
             await cmdhelper.send_message(ctx, {
                 "title": "Play Sound",
                 "description": f"Admin is required for this command to work",
-                "colour": "#ff0000",
-                "footer": cfg.get("theme")["footer"]
+                "colour": "#ff0000"
             })
             return
         
@@ -402,8 +382,7 @@ Address       :: {address}
             await cmdhelper.send_message(ctx, {
                 "title": "Play Sound",
                 "description": f"You're not in a voice channel",
-                "colour": "#ff0000",
-                "footer": cfg.get("theme")["footer"]
+                "colour": "#ff0000"
             })
             return
         
@@ -411,8 +390,7 @@ Address       :: {address}
             await cmdhelper.send_message(ctx, {
                 "title": "Play Sound",
                 "description": f"That file is not an MP3",
-                "colour": "#ff0000",
-                "footer": cfg.get("theme")["footer"]
+                "colour": "#ff0000"
             })
             return
         
@@ -421,8 +399,7 @@ Address       :: {address}
             await cmdhelper.send_message(ctx, {
                 "title": "Play Sound",
                 "description": f"404 file not found",
-                "colour": "#ff0000",
-                "footer": cfg.get("theme")["footer"]
+                "colour": "#ff0000"
             })
             return
         
@@ -436,9 +413,7 @@ Address       :: {address}
             if sound.id:
                 await cmdhelper.send_message(ctx, {
                     "title": "Play Sound",
-                    "description": f"Sound file is being played",
-                    "colour": cfg.get("theme")["colour"],
-                    "footer": cfg.get("theme")["footer"]
+                    "description": f"Sound file is being played"
                 })
                 
                 soundeffects.play_sound(sound.id, source_guild_id=ctx.guild.id)
@@ -449,8 +424,7 @@ Address       :: {address}
                 await cmdhelper.send_message(ctx, {
                     "title": "Play Sound",
                     "description": f"Sound could not be played. Possible reasons include:\n- File is too long\n- File is over 512KB",
-                    "colour": "#ff0000",
-                    "footer": cfg.get("theme")["footer"]
+                    "colour": "#ff0000"
                 })
                 return
             
@@ -458,8 +432,7 @@ Address       :: {address}
             await cmdhelper.send_message(ctx, {
                 "title": "Play Sound",
                 "description": f"Sound could not be played. Possible reasons include:\n- File is too long\n- File is over 512KB",
-                "colour": "#ff0000",
-                "footer": cfg.get("theme")["footer"]
+                "colour": "#ff0000"
             })
             return            
 
