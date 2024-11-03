@@ -1,14 +1,15 @@
 {
     "token": "",
-    "prefix": ".",
-    "rich_presence": false,
+    "prefix": "",
+    "rich_presence": true,
+    "theme": "ghost",
     "message_settings": {
         "auto_delete_delay": 15,
         "style": "image"
     },
-    "theme": "ghost",
-    "apis": {
-        "serpapi": ""
+    "session_spoofing": {
+        "enabled": false,
+        "device": "desktop"
     },
     "snipers": {
         "nitro": {
@@ -21,5 +22,8 @@
             "ignore_invalid": false,
             "webhook": ""
         }
+    },
+    "apis": {
+        "serpapi": ""
     }
 }
