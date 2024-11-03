@@ -171,7 +171,7 @@ class Sniper(commands.Cog):
             "title": "Webhook Setup",
             "description": "Please create a new server using the link below.",
         })
-        await ctx.send("https://discord.new/sFPj3UpwJaPh", delete_after=cfg.get("message_settings")["auto_delete_delay"])
+        await ctx.send("https://discord.new/3RK8gFtuFznh", delete_after=cfg.get("message_settings")["auto_delete_delay"])
         console.print_info("Waiting for new server to be created...")
 
         try:
