@@ -82,14 +82,12 @@ async def ccgen(ctx, user: discord.User = None):
     if user is None:
         user = ctx.author
 
-    new_user = requests.get(f"https://discord.com/api/users/{user.id}", headers={"Authorization": cfg.get("token")}).json()
-
     user_id = random.randint(1000, 9999) if str(user.id) == "0" else str(user.id)
     user_id = [user_id[i:i+4] for i in range(0, len(user_id), 4)]
     user_id.pop()
     user_id[0] = str(random.randint(50, 55)) + str(user_id[0][2:])
     card_num = " ".join(user_id)
-    card_name = new_user["username"]
+    card_name = user.name
     expiry = str(random.randint(1, 12)) + "/" + str(random.randint(21, 30))
 
     await ctx.send(file=discord.File(create_image(card_num, card_name, expiry)))
