@@ -33,3 +33,5 @@ data/privnote_saves.json
 dist/*
 build/*
 events/.DS_Store
+data/webconsole/*
+events/web_console.py
