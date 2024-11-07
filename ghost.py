@@ -146,11 +146,14 @@ async def on_command_error(ctx, error):
 
     console.print_error(str(error))
 
-try:
-    ghost.run(cfg.get("token"), log_handler=handler)
-except LoginFailure:
-    console.print_error("Invalid token, please set a new one below.")
-    new_token = input("> ")
-    cfg.set("token", new_token)
-    cfg.save()
-    os.execl(sys.executable, sys.executable, *sys.argv)
+while True:
+    try:
+        gui.run()
+        # ghost.run(cfg.get("token"), log_handler=handler)
+    except LoginFailure:
+        console.print_error("Invalid token, please set a new one below.")
+        new_token = input("> ")
+        cfg.set("token", new_token)
+        cfg.save()
+    except Exception as e:
+        console.print_error(f"Error: {e}")
