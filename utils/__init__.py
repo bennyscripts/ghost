@@ -11,3 +11,4 @@ from .soundboard import Soundboard, Sound
 from .privnote import Privnote
 from .webhook import Webhook
 from .sessionspoof import patch_identify
+from .gui import GhostGUI

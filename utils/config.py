@@ -12,6 +12,7 @@ DEFAULT_CONFIG = {
     "prefix": "",
     "rich_presence": True,
     "theme": "ghost",
+    "gui": True,
     "message_settings": {
         "auto_delete_delay": 15,
         "style": "image"

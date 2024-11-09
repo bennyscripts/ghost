@@ -28,6 +28,7 @@ from utils import codeblock
 from utils import cmdhelper
 from utils import imgembed
 from utils import sessionspoof
+from utils import gui as ghost_gui
 
 # import utils as ghost_utils
 import commands as ghost_commands
@@ -58,6 +59,7 @@ ghost = commands.Bot(
     status=discord.Status.try_value(status)
 )
 
+gui = ghost_gui.GhostGUI(ghost)
 user = requests.get("https://discord.com/api/users/@me", headers={"Authorization": cfg.get("token")}).json()
 handler = logging.FileHandler(filename='ghost.log', encoding='utf-8', mode='w')
 rpc_log = ""
@@ -81,6 +83,8 @@ for script_file in os.listdir("scripts"):
 
 @ghost.event
 async def on_connect():
+    gui.bot_started = True
+
     await ghost.add_cog(ghost_commands.Account(ghost))
     await ghost.add_cog(ghost_commands.Fun(ghost))
     await ghost.add_cog(ghost_commands.General(ghost))
@@ -146,14 +150,8 @@ async def on_command_error(ctx, error):
 
     console.print_error(str(error))
 
-while True:
-    try:
-        gui.run()
-        # ghost.run(cfg.get("token"), log_handler=handler)
-    except LoginFailure:
-        console.print_error("Invalid token, please set a new one below.")
-        new_token = input("> ")
-        cfg.set("token", new_token)
-        cfg.save()
-    except Exception as e:
-        console.print_error(f"Error: {e}")
+
+try:
+    gui.run()
+except Exception as e:
+    console.print_error(str(e))
