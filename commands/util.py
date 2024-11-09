@@ -210,19 +210,6 @@ class Util(commands.Cog):
         devices = ["mobile", "desktop", "web", "embedded"]
         spoofing, spoofing_device = cfg.get_session_spoofing()
 
-        if device is None:
-            cfg.set_session_spoofing(not spoofing, spoofing_device)
-            cfg.save()
-
-            await cmdhelper.send_message(ctx, {
-                "title": "Session Spoofing",
-                "description": f"Session spoofing is now {'enabled' if not spoofing else 'disabled'}\nRestarting to apply changes...",
-                "colour": "#00ff00" if not spoofing else "#ff0000"
-            })
-
-            await self.restart(ctx)
-            return
-
         if not spoofing:
             await cmdhelper.send_message(ctx, {
                 "title": "Session Spoofing",
@@ -238,16 +225,26 @@ class Util(commands.Cog):
                 "colour": "#ff0000"
             })
             return
+
+        if device is None:
+            cfg.set_session_spoofing(not spoofing, spoofing_device)
+
+            await cmdhelper.send_message(ctx, {
+                "title": "Session Spoofing",
+                "description": f"Session spoofing is now {'enabled' if not spoofing else 'disabled'}\nRestarting to apply changes...",
+                "colour": "#00ff00" if not spoofing else "#ff0000"
+            })
         
-        cfg.set_session_spoofing(spoofing, device)
+        else:
+            cfg.set_session_spoofing(spoofing, device)
+
+            await cmdhelper.send_message(ctx, {
+                "title": "Session Spoofing",
+                "description": f"Session spoofing is now enabled as {device}\nRestarting to apply changes...",
+                "colour": "#00ff00"
+            })
+
         cfg.save()
-
-        await cmdhelper.send_message(ctx, {
-            "title": "Session Spoofing",
-            "description": f"Session spoofing is now enabled as {device}\nRestarting to apply changes...",
-            "colour": "#00ff00"
-        })
-
         await self.restart(ctx)
 
     @commands.command(name="uptime", description="View the bot's uptime", usage="")
