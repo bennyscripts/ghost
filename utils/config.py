@@ -5,7 +5,7 @@ from . import console
 from . import webhook as webhook_client
 
 MOTD = "over your entire life you could eat 10 spiders whilst asleep".lower()
-VERSION = "3.3.1"
+VERSION = "3.4.0"
 PRODUCTION = True
 DEFAULT_CONFIG = {
     "token": "",
