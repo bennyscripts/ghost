@@ -220,11 +220,27 @@ class Config:
         json.dump(self.config, open("config.json", "w"), indent=4)
 
     def get(self, key) -> str:
+        subkey = None
+
+        if "." in key:
+            key, subkey = key.split(".")
+
+        if subkey:
+            return self.config[key][subkey]
+        
         return self.config[key]
 
-    def set(self, key, value) -> None:
-        self.config[key] = value
-        self.save()
+    def set(self, key, value, save=True) -> None:
+        if "." in key:
+            key, subkey = key.split(".")
+            self.config[key][subkey] = value
+        elif isinstance(value, dict):
+            self.config[key] = {**self.config[key], **value}
+        else:
+            self.config[key] = value
+
+        if save:
+            self.save()
 
     def get_theme_file(self, theme):        
         return json.load(open(f"themes/{theme}.json")) if os.path.exists(f"themes/{theme}.json") else None
