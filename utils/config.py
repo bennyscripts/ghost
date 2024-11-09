@@ -233,6 +233,8 @@ class Config:
         json.dump(new_obj, open(f"themes/{theme_name}.json", "w"), indent=4)
 
     def get_theme(self, theme_name):
+        if not os.path.exists(f"themes/{theme_name}.json"):
+            return Theme(**DEFAULT_THEME)
         theme_obj = self.get_theme_file(theme_name)
         theme_obj["name"] = theme_name
         return Theme(**theme_obj)
