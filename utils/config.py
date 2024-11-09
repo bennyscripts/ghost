@@ -310,3 +310,11 @@ class Config:
         json.dump(DEFAULT_THEME, open(f"themes/{theme_name}.json", "w"), indent=4)
         theme = Theme(name=theme_name, **DEFAULT_THEME)
         return theme
+    
+    @staticmethod
+    def get_python_path():
+        return os.path.dirname(os.path.realpath(__file__))
+    
+    @staticmethod
+    def quit():
+        exit()
