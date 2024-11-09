@@ -143,6 +143,20 @@ class Util(commands.Cog):
             self.bot.command_prefix = prefix
             cfg.set("prefix", prefix)
 
+    @commands.command(name="gui", description="Enable the GUI", usage="", aliases=["enablegui"])
+    async def gui(self, ctx):
+        cfg = config.Config()
+        cfg.set("gui", True)
+        cfg.save()
+
+        await cmdhelper.send_message(ctx, {
+            "title": "GUI",
+            "description": "GUI is now enabled\nRestarting to apply changes...",
+            "colour": "#00ff00"
+        })
+
+        await self.restart(ctx)
+
     @commands.command(name="richpresence", description="Toggle rich presence", usage="", aliases=["rpc"])
     async def richpresence(self, ctx):
         cfg = config.Config()
