@@ -190,6 +190,13 @@ class Config:
                 if key not in self.config:
                     self.config[key] = DEFAULT_CONFIG[key]
                 
+            for key in self.config:
+                if key == "message_settings":
+                    auto_delete_delay = self.config[key]["auto_delete_delay"]
+
+                    if not isinstance(auto_delete_delay, int):
+                        self.config[key]["auto_delete_delay"] = int(auto_delete_delay) if auto_delete_delay.isdigit() else DEFAULT_CONFIG[key]["auto_delete_delay"]
+
             json.dump(self.config, open("config.json", "w"), indent=4)
 
         if self.get("token") == "":
