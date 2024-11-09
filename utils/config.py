@@ -85,7 +85,16 @@ class Sniper:
 
     def __str__(self):
         return self.name
+    def to_dict(self):
+        return {
+            "enabled": self.enabled,
+            "ignore_invalid": self.ignore_invalid,
+            "webhook": self.webhook
+        }
     
+    def set(self, key, value):
+        setattr(self, key, value)
+
     def get_webhook(self):
         return webhook_client.Webhook.from_url(self.webhook)
     
