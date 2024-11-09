@@ -39,7 +39,7 @@ DEFAULT_CONFIG = {
 }
 DEFAULT_THEME = {
     "title": "ghost selfbot",
-    "emoji": "\ud83d\udc99",
+    "emoji": "👻",
     "image": "https://cdn.discordapp.com/icons/1302632843176050738/e7f5c4fa0080423094fd8025f3f8d5a1.png?size=1024",
     "colour": "#575757",
     "footer": "ghost aint dead"
@@ -97,6 +97,7 @@ class Sniper:
 
     def __str__(self):
         return self.name
+    
     def to_dict(self):
         return {
             "enabled": self.enabled,
@@ -251,6 +252,7 @@ class Config:
     def get_theme(self, theme_name):
         if not os.path.exists(f"themes/{theme_name}.json"):
             return Theme(**DEFAULT_THEME)
+                    
         theme_obj = self.get_theme_file(theme_name)
         theme_obj["name"] = theme_name
         return Theme(**theme_obj)
