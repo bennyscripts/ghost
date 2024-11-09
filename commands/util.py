@@ -98,6 +98,18 @@ class Util(commands.Cog):
         
         os.execl(sys.executable, sys.executable, *sys.argv)
 
+    @commands.command(name="quit", description="Quit the bot.", usage="", aliases=["exit"])
+    async def quit(self, ctx, output=True):
+        cfg = config.Config()
+
+        if output:
+            await cmdhelper.send_message(ctx, {
+                "title": cfg.theme.title,
+                "description": "quitting ghost...",
+            })
+
+        sys.exit()
+
     @commands.command(name="settings", description="View ghost's settings.", usage="")
     async def settings(self, ctx):
         cfg = config.Config()
