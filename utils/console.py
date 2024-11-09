@@ -1,8 +1,11 @@
 import colorama
 import datetime
+import logging
 import os, sys, pystyle
 
 from . import config
+
+handler = logging.FileHandler(filename='ghost.log', encoding='utf-8', mode='w')
 
 def clear():
     if sys.platform == "win32":
