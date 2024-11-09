@@ -3,6 +3,7 @@
     "prefix": "",
     "rich_presence": true,
     "theme": "ghost",
+    "gui": true,
     "message_settings": {
         "auto_delete_delay": 15,
         "style": "image"
