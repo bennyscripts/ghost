@@ -42,6 +42,7 @@ if discord.__version__ < "2.0.0":
 
 cfg = config.Config()
 cfg.check()
+token = cfg.get("token")
 files.create_defaults()
 
 session_spoofing, session_spoofing_device = cfg.get_session_spoofing()
@@ -150,6 +151,11 @@ async def on_command_error(ctx, error):
 
     console.print_error(str(error))
 
+while token == "":
+    console.print_error("Invalid token, please set a new one below.")
+    new_token = input("> ")
+    cfg.set("token", new_token)
+    cfg.save()
 
 try:
     gui.run()
