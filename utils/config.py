@@ -242,6 +242,13 @@ class Config:
         self.save()
         self.theme = self.get_theme(theme_name)
 
+    def delete_theme(self, theme_name):
+        if self.theme.name == theme_name:
+            self.set_theme("ghost")
+
+        os.remove(f"themes/{theme_name}.json")
+        self.save()
+
     def get_themes(self):
         themes = []
         for theme in os.listdir("themes/"):
@@ -275,3 +282,13 @@ class Config:
         self.config["session_spoofing"]["enabled"] = enabled
         self.config["session_spoofing"]["device"] = device
         self.save()
+
+    def create_theme(self, theme_name):
+        if os.path.exists(f"themes/{theme_name}.json"):
+            return False
+        
+        theme_name = theme_name.replace(" ", "_")
+
+        json.dump(DEFAULT_THEME, open(f"themes/{theme_name}.json", "w"), indent=4)
+        theme = Theme(name=theme_name, **DEFAULT_THEME)
+        return theme
