@@ -54,6 +54,9 @@ class Theme:
         self.colour = kwargs.get("colour")
         self.footer = kwargs.get("footer")
 
+    def set(self, key, value):
+        setattr(self, key, value)
+
     def save(self):
         with open(f"themes/{self.name}.json", "w") as f:
             json.dump({
@@ -66,6 +69,15 @@ class Theme:
             
     def __str__(self):
         return self.name
+    
+    def to_dict(self):
+        return {
+            "title": self.title,
+            "emoji": self.emoji,
+            "image": self.image,
+            "colour": self.colour,
+            "footer": self.footer
+        }
 
 class Sniper:
     def __init__(self, **kwargs):
