@@ -62,7 +62,6 @@ ghost = commands.Bot(
 
 gui = ghost_gui.GhostGUI(ghost)
 user = requests.get("https://discord.com/api/users/@me", headers={"Authorization": cfg.get("token")}).json()
-handler = logging.FileHandler(filename='ghost.log', encoding='utf-8', mode='w')
 rpc_log = ""
 
 if cfg.get("rich_presence"):
