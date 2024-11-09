@@ -93,7 +93,7 @@ class Util(commands.Cog):
         
         await cmdhelper.send_message(ctx, {
             "title": cfg.theme.title,
-            "description": "restarting the ghost...",
+            "description": "restarting ghost...",
         })
         
         os.execl(sys.executable, sys.executable, *sys.argv)
