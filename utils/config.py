@@ -99,7 +99,10 @@ class Sniper:
         return webhook_client.Webhook.from_url(self.webhook)
     
     def set_webhook(self, webhook):
-        self.webhook = webhook.url
+        try:
+            self.webhook = webhook.url
+        except:
+            self.webhook = webhook
         self.save()
 
     def enable(self):
